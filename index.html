@@ -1,83 +1,121 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movies & Games</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            margin-top: 20px;
-        }
-        .search-container {
-            margin: 20px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            padding: 10px;
-        }
-        .grid-item {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-        }
-        .grid-item img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-        .filter {
-            margin-top: 10px;
-        }
-    </style>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YourIGL | Movies & Games</title>
 
-body {
-background: radial-gradient(circle at 20% 20%, #1a1a1a 0%, #000 60%);
+<style>
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:black;
 color:white;
-font-family: Arial, sans-serif;
+display:flex;
+flex-direction:column;
+align-items:center;
+overflow-x:hidden;
 }
 
+/* cinematic background */
 body::before{
 content:"";
 position:fixed;
-top:0;
-left:0;
 width:100%;
 height:100%;
-background-image: repeating-linear-gradient(
-45deg,
-rgba(255,255,255,0.04) 0px,
-rgba(255,255,255,0.04) 2px,
-transparent 2px,
-transparent 40px
-);
+background:
+radial-gradient(circle at 20% 20%, rgba(255,255,255,.05), transparent 40%),
+radial-gradient(circle at 80% 70%, rgba(255,255,255,.05), transparent 40%);
+animation:bgmove 15s infinite linear;
 pointer-events:none;
 }
 
-.gallery-item{
-background:rgba(255,255,255,0.05);
-border-radius:12px;
-padding:20px;
-margin:25px auto;
-width:350px;
-transition:all .4s ease;
-border:1px solid rgba(255,255,255,0.1);
+@keyframes bgmove{
+0%{transform:translate(0,0)}
+50%{transform:translate(-40px,-40px)}
+100%{transform:translate(0,0)}
 }
 
-.gallery-item:hover{
-transform:scale(1.05);
-box-shadow:0 0 25px rgba(255,255,255,0.3);
+h1{
+margin-top:30px;
+letter-spacing:2px;
 }
+
+/* search bar */
+
+.search-container{
+margin:20px;
+}
+
+input{
+padding:10px;
+border-radius:6px;
+border:none;
+width:260px;
+}
+
+/* grid layout */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:25px;
+width:90%;
+max-width:1200px;
+}
+
+/* cards */
+
+.grid-item{
+background:rgba(255,255,255,.05);
+border-radius:10px;
+padding:10px;
+text-align:center;
+transition:.35s;
+border:1px solid rgba(255,255,255,.1);
+cursor:pointer;
+}
+
+.grid-item:hover{
+transform:scale(1.08);
+box-shadow:0 0 30px rgba(255,255,255,.25);
+}
+
+.grid-item img{
+width:100%;
+border-radius:8px;
+transition:.4s;
+}
+
+.grid-item:hover img{
+transform:scale(1.05);
+}
+
+/* preview panel */
+
+.preview{
+position:fixed;
+right:25px;
+bottom:25px;
+width:420px;
+height:240px;
+background:black;
+border-radius:10px;
+border:1px solid rgba(255,255,255,.2);
+display:none;
+overflow:hidden;
+box-shadow:0 0 35px rgba(0,0,0,.9);
+}
+
+.preview img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+/* neon burst */
 
 .color-burst{
 position:fixed;
@@ -91,7 +129,7 @@ transition:opacity .6s;
 background:
 radial-gradient(circle at 30% 30%, #ff004c, transparent 40%),
 radial-gradient(circle at 70% 60%, #00eaff, transparent 40%),
-radial-gradient(circle at 50% 80%, #ffea00, transparent 40%);
+radial-gradient(circle at 50% 80%, #ffe600, transparent 40%);
 }
 
 .color-burst.active{
@@ -99,76 +137,112 @@ opacity:.9;
 }
 
 </style>
+
 </head>
+
 <body>
-    <div class="color-burst" id="colorBurst"></div>
-    <h1>Enhanced Gallery</h1>
-    <div class="search-container">
-        <input type="text" id="search" placeholder="Search by title...">
-        <select id="yearFilter" class="filter">
-            <option value="">Filter by year</option>
-            <!-- Year options will be populated here -->
-        </select>
-    </div>
-    <div class="grid" id="gallery"></div>
 
-    <script>
-        async function fetchData() {
-            const response = await fetch('data.json');
-            const items = await response.json();
-            displayItems(items);
-        }
+<div class="color-burst" id="colorBurst"></div>
 
-        function displayItems(items) {
-            const gallery = document.getElementById('gallery');
-            gallery.innerHTML = '';
+<h1>YourIGL Gallery</h1>
 
-            items.forEach(item => {
-                const gridItem = document.createElement('div');
-                gridItem.classList.add('grid-item');
-                gridItem.innerHTML = `
-                    <a href="magnet:${item.magnet}">
-                        <img src="${item.image}" alt="${item.title}">
-                        <h3>${item.title}</h3>
-                    </a>
-                `;
-                gallery.appendChild(gridItem);
-            });
-        }
+<div class="search-container">
+<input type="text" id="search" placeholder="Search movies or games">
+</div>
 
-        // Search functionality
-        document.getElementById('search').addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            const filteredItems = items.filter(item => item.title.toLowerCase().includes(query));
-            displayItems(filteredItems);
-        });
+<div class="grid" id="gallery"></div>
 
-        // Initial data load
-        fetchData();
-    </script>
-    <script>
+<div class="preview" id="preview">
+<img id="previewImage">
+</div>
+
+<script>
+
+let items=[];
+
+/* load data */
+
+async function fetchData(){
+
+const response=await fetch("data.json");
+items=await response.json();
+displayItems(items);
+
+}
+
+/* build gallery */
+
+function displayItems(data){
+
+const gallery=document.getElementById("gallery");
+gallery.innerHTML="";
+
+data.forEach(item=>{
+
+const card=document.createElement("div");
+card.classList.add("grid-item");
+
+card.innerHTML=`
+<a href="magnet:${item.magnet}">
+<img src="${item.image}" alt="${item.title}">
+<h3>${item.title}</h3>
+</a>
+`;
+
+gallery.appendChild(card);
+
+attachHover(card,item);
+
+});
+
+}
+
+/* hover behavior */
+
+function attachHover(card,item){
 
 let timer;
 
-document.querySelectorAll(".gallery-item").forEach(item => {
+card.addEventListener("mouseenter",()=>{
 
-item.addEventListener("mouseenter", () => {
+document.getElementById("preview").style.display="block";
+document.getElementById("previewImage").src=item.image;
 
-timer = setTimeout(() => {
+timer=setTimeout(()=>{
 document.getElementById("colorBurst").classList.add("active");
-}, 5000);
+},5000);
 
 });
 
-item.addEventListener("mouseleave", () => {
+card.addEventListener("mouseleave",()=>{
 
 clearTimeout(timer);
+
 document.getElementById("colorBurst").classList.remove("active");
 
-});
+document.getElementById("preview").style.display="none";
 
 });
+
+}
+
+/* search */
+
+document.getElementById("search").addEventListener("input",function(){
+
+const q=this.value.toLowerCase();
+
+const filtered=items.filter(i=>i.title.toLowerCase().includes(q));
+
+displayItems(filtered);
+
+});
+
+/* start */
+
+fetchData();
 
 </script>
+
 </body>
 </html>
