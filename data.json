@@ -1,0 +1,14 @@
+[  
+  {  
+    "year": 2023,  
+    "title": "Example Video Title 1",  
+    "thumbnail": "http://example.com/thumb1.jpg",  
+    "magnet_link": "magnet:?xt=urn:btih:abc123"  
+  },  
+  {  
+    "year": 2023,  
+    "title": "Example Game Title 1",  
+    "thumbnail": "http://example.com/thumb2.jpg",  
+    "magnet_link": "magnet:?xt=urn:btih:def456"  
+  }  
+]
