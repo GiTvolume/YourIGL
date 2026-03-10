@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Catalog Gallery</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .gallery { display: flex; flex-wrap: wrap; gap: 10px; }
+        .item { border: 1px solid #ccc; padding: 10px; width: 150px; text-align: center; }
+        .search { margin-bottom: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Media Catalog Gallery</h1>
+    <div class="search">
+        <input type="text" id="yearFilter" placeholder="Filter by year" />
+    </div>
+    <div class="gallery" id="gallery">
+        <!-- Sample thumbnails, titles, years, and magnet links -->
+        <div class="item" data-year="2020">
+            <img src="thumbnail1.jpg" alt="Title 1" />
+            <h2>Title 1</h2>
+            <p>Year: 2020</p>
+            <a href="magnet:link1">Magnet Link</a>
+        </div>
+        <div class="item" data-year="2021">
+            <img src="thumbnail2.jpg" alt="Title 2" />
+            <h2>Title 2</h2>
+            <p>Year: 2021</p>
+            <a href="magnet:link2">Magnet Link</a>
+        </div>
+        <div class="item" data-year="2022">
+            <img src="thumbnail3.jpg" alt="Title 3" />
+            <h2>Title 3</h2>
+            <p>Year: 2022</p>
+            <a href="magnet:link3">Magnet Link</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('yearFilter').addEventListener('input', function() {
+            const year = this.value;
+            const items = document.querySelectorAll('.item');
+            items.forEach(item => {
+                item.classList.toggle('hidden', item.dataset.year !== year);
+            });
+        });
+    </script>
+</body>
+</html>
