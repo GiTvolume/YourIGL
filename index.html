@@ -3,49 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Catalog Gallery</title>
+    <title>Enhanced Gallery</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .gallery { display: flex; flex-wrap: wrap; gap: 10px; }
-        .item { border: 1px solid #ccc; padding: 10px; width: 150px; text-align: center; }
-        .search { margin-bottom: 20px; }
-        .hidden { display: none; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        .search-container {
+            margin: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 10px;
+        }
+        .grid-item {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        .grid-item img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .filter {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Media Catalog Gallery</h1>
-    <div class="search">
-        <input type="text" id="yearFilter" placeholder="Filter by year" />
+    <h1>Enhanced Gallery</h1>
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search by title...">
+        <select id="yearFilter" class="filter">
+            <option value="">Filter by year</option>
+            <!-- Year options will be populated here -->
+        </select>
     </div>
-    <div class="gallery" id="gallery">
-        <!-- Sample thumbnails, titles, years, and magnet links -->
-        <div class="item" data-year="2020">
-            <img src="thumbnail1.jpg" alt="Title 1" />
-            <h2>Title 1</h2>
-            <p>Year: 2020</p>
-            <a href="magnet:link1">Magnet Link</a>
-        </div>
-        <div class="item" data-year="2021">
-            <img src="thumbnail2.jpg" alt="Title 2" />
-            <h2>Title 2</h2>
-            <p>Year: 2021</p>
-            <a href="magnet:link2">Magnet Link</a>
-        </div>
-        <div class="item" data-year="2022">
-            <img src="thumbnail3.jpg" alt="Title 3" />
-            <h2>Title 3</h2>
-            <p>Year: 2022</p>
-            <a href="magnet:link3">Magnet Link</a>
-        </div>
-    </div>
+    <div class="grid" id="gallery"></div>
+
     <script>
-        document.getElementById('yearFilter').addEventListener('input', function() {
-            const year = this.value;
-            const items = document.querySelectorAll('.item');
+        async function fetchData() {
+            const response = await fetch('data.json');
+            const items = await response.json();
+            displayItems(items);
+        }
+
+        function displayItems(items) {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
             items.forEach(item => {
-                item.classList.toggle('hidden', item.dataset.year !== year);
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.innerHTML = `
+                    <a href="magnet:${item.magnet}">
+                        <img src="${item.image}" alt="${item.title}">
+                        <h3>${item.title}</h3>
+                    </a>
+                `;
+                gallery.appendChild(gridItem);
             });
+        }
+
+        // Search functionality
+        document.getElementById('search').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const filteredItems = items.filter(item => item.title.toLowerCase().includes(query));
+            displayItems(filteredItems);
         });
+
+        // Initial data load
+        fetchData();
     </script>
 </body>
 </html>
