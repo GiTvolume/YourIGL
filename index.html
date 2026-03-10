@@ -1,139 +1,107 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YourIGL | Movies & Games</title>
+<title>ATS Career Directory</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:black;
+font-family:Segoe UI;
+background:#0b0b0b;
 color:white;
-display:flex;
-flex-direction:column;
-align-items:center;
 overflow-x:hidden;
 }
 
-/* cinematic background */
-body::before{
-content:"";
-position:fixed;
-width:100%;
-height:100%;
-background:
-radial-gradient(circle at 20% 20%, rgba(255,255,255,.05), transparent 40%),
-radial-gradient(circle at 80% 70%, rgba(255,255,255,.05), transparent 40%);
-animation:bgmove 15s infinite linear;
-pointer-events:none;
+/* HEADER */
+
+.header{
+padding:30px;
+font-size:28px;
+font-weight:600;
 }
 
-@keyframes bgmove{
-0%{transform:translate(0,0)}
-50%{transform:translate(-40px,-40px)}
-100%{transform:translate(0,0)}
+/* SEARCH */
+
+.search{
+padding:20px;
 }
 
-h1{
-margin-top:30px;
-letter-spacing:2px;
-}
-
-/* search bar */
-
-.search-container{
-margin:20px;
-}
-
-input{
+.search input{
 padding:10px;
+width:260px;
 border-radius:6px;
 border:none;
-width:260px;
 }
 
-/* grid layout */
+/* GRID */
 
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
 gap:25px;
-width:90%;
-max-width:1200px;
+padding:30px;
 }
 
-/* cards */
+/* CARDS */
 
-.grid-item{
-background:rgba(255,255,255,.05);
+.card{
+background:#111;
 border-radius:10px;
-padding:10px;
-text-align:center;
-transition:.35s;
+padding:20px;
 border:1px solid rgba(255,255,255,.1);
-cursor:pointer;
+transition:.3s;
 }
 
-.grid-item:hover{
-transform:scale(1.08);
-box-shadow:0 0 30px rgba(255,255,255,.25);
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 10px 25px rgba(0,0,0,.6);
 }
 
-.grid-item img{
-width:100%;
-border-radius:8px;
-transition:.4s;
+.card h3{
+margin:0;
+font-size:18px;
 }
 
-.grid-item:hover img{
-transform:scale(1.05);
+.card a{
+display:inline-block;
+margin-top:10px;
+color:#4da3ff;
+text-decoration:none;
+font-size:14px;
 }
 
-/* preview panel */
+/* CURSOR */
 
-.preview{
+.cursor{
 position:fixed;
-right:25px;
-bottom:25px;
-width:420px;
-height:240px;
-background:black;
-border-radius:10px;
-border:1px solid rgba(255,255,255,.2);
-display:none;
-overflow:hidden;
-box-shadow:0 0 35px rgba(0,0,0,.9);
-}
-
-.preview img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-/* neon burst */
-
-.color-burst{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-opacity:0;
+width:14px;
+height:14px;
+background:#fff;
+border-radius:50%;
 pointer-events:none;
-transition:opacity .6s;
-background:
-radial-gradient(circle at 30% 30%, #ff004c, transparent 40%),
-radial-gradient(circle at 70% 60%, #00eaff, transparent 40%),
-radial-gradient(circle at 50% 80%, #ffe600, transparent 40%);
+z-index:9999;
+mix-blend-mode:difference;
 }
 
-.color-burst.active{
-opacity:.9;
+/* PARTICLES */
+
+.particle{
+position:fixed;
+width:6px;
+height:6px;
+background:white;
+border-radius:50%;
+pointer-events:none;
+opacity:.8;
+animation:fade 2s forwards;
+}
+
+@keyframes fade{
+0%{opacity:.8;transform:scale(1)}
+100%{opacity:0;transform:scale(.2)}
 }
 
 </style>
@@ -142,105 +110,98 @@ opacity:.9;
 
 <body>
 
-<div class="color-burst" id="colorBurst"></div>
+<div class="cursor" id="cursor"></div>
 
-<h1>YourIGL Gallery</h1>
-
-<div class="search-container">
-<input type="text" id="search" placeholder="Search movies or games">
+<div class="header">
+ATS Direct Apply Directory
 </div>
 
-<div class="grid" id="gallery"></div>
-
-<div class="preview" id="preview">
-<img id="previewImage">
+<div class="search">
+<input type="text" id="search" placeholder="Search company">
 </div>
+
+<div class="grid" id="grid"></div>
 
 <script>
 
-let items=[];
+/* DATASET */
 
-/* load data */
+const companies=[
 
-async function fetchData(){
+{name:"Walmart",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com/WalmartExternal"},
+{name:"Amazon",ats:"Workday",url:"https://amazon.jobs"},
+{name:"Apple",ats:"Workday",url:"https://jobs.apple.com"},
+{name:"Microsoft",ats:"Workday",url:"https://jobs.careers.microsoft.com"},
+{name:"Adobe",ats:"Workday",url:"https://adobe.wd5.myworkdayjobs.com"},
+{name:"Netflix",ats:"Workday",url:"https://jobs.netflix.com"},
+{name:"Salesforce",ats:"Workday",url:"https://salesforce.wd1.myworkdayjobs.com"},
+{name:"Accenture",ats:"Workday",url:"https://accenture.wd3.myworkdayjobs.com"},
+{name:"Target",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com"},
+{name:"Nordstrom",ats:"Workday",url:"https://nordstrom.wd5.myworkdayjobs.com"},
+{name:"Medtronic",ats:"Workday",url:"https://medtronic.wd1.myworkdayjobs.com"},
+{name:"StateStreet",ats:"Workday",url:"https://statestreet.wd1.myworkdayjobs.com"}
 
-const response=await fetch("data.json");
-items=await response.json();
-displayItems(items);
+];
 
-}
+/* BUILD GRID */
 
-/* build gallery */
+const grid=document.getElementById("grid");
 
-function displayItems(data){
+function render(data){
 
-const gallery=document.getElementById("gallery");
-gallery.innerHTML="";
+grid.innerHTML="";
 
-data.forEach(item=>{
+data.forEach(c=>{
 
 const card=document.createElement("div");
-card.classList.add("grid-item");
+card.className="card";
 
 card.innerHTML=`
-<a href="magnet:${item.magnet}">
-<img src="${item.image}" alt="${item.title}">
-<h3>${item.title}</h3>
-</a>
+<h3>${c.name}</h3>
+<p>${c.ats}</p>
+<a href="${c.url}" target="_blank">Open Careers</a>
 `;
 
-gallery.appendChild(card);
-
-attachHover(card,item);
+grid.appendChild(card);
 
 });
 
 }
 
-/* hover behavior */
+render(companies);
 
-function attachHover(card,item){
-
-let timer;
-
-card.addEventListener("mouseenter",()=>{
-
-document.getElementById("preview").style.display="block";
-document.getElementById("previewImage").src=item.image;
-
-timer=setTimeout(()=>{
-document.getElementById("colorBurst").classList.add("active");
-},5000);
-
-});
-
-card.addEventListener("mouseleave",()=>{
-
-clearTimeout(timer);
-
-document.getElementById("colorBurst").classList.remove("active");
-
-document.getElementById("preview").style.display="none";
-
-});
-
-}
-
-/* search */
+/* SEARCH */
 
 document.getElementById("search").addEventListener("input",function(){
 
 const q=this.value.toLowerCase();
 
-const filtered=items.filter(i=>i.title.toLowerCase().includes(q));
+const filtered=companies.filter(c=>c.name.toLowerCase().includes(q));
 
-displayItems(filtered);
+render(filtered);
 
 });
 
-/* start */
+/* CUSTOM CURSOR */
 
-fetchData();
+const cursor=document.getElementById("cursor");
+
+document.addEventListener("mousemove",e=>{
+
+cursor.style.left=e.clientX+"px";
+cursor.style.top=e.clientY+"px";
+
+const p=document.createElement("div");
+p.className="particle";
+
+p.style.left=e.clientX+"px";
+p.style.top=e.clientY+"px";
+
+document.body.appendChild(p);
+
+setTimeout(()=>p.remove(),2000);
+
+});
 
 </script>
 
