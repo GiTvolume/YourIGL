@@ -38,7 +38,7 @@ font-size:18px;
 .sidebar div{
 cursor:pointer;
 font-size:14px;
-opacity:.85;
+opacity:.9;
 }
 
 .sidebar div:hover{opacity:1}
@@ -79,12 +79,6 @@ background:rgba(255,255,255,.15);
 padding:12px;
 border-radius:10px;
 border:1px solid rgba(255,255,255,.15);
-transition:.2s;
-}
-
-.card:hover{
-transform:translateY(-3px);
-border-color:rgba(255,255,255,.35);
 }
 
 .card img{width:26px}
@@ -120,7 +114,7 @@ overflow:hidden;
 .ticker-track{
 display:flex;
 gap:40px;
-animation:scroll 30s linear infinite;
+animation:scroll 70s linear infinite;
 }
 
 .ticker:hover .ticker-track{
@@ -164,18 +158,6 @@ animation:fade 2s forwards;
 .square{width:6px;height:6px;background:#fbbf24}
 .circle{width:6px;height:6px;background:#fbbf24;border-radius:50%}
 
-.triangle{
-width:0;height:0;
-border-left:4px solid transparent;
-border-right:4px solid transparent;
-border-bottom:7px solid #fbbf24
-}
-
-.diamond{
-width:6px;height:6px;background:#fbbf24;
-transform:rotate(45deg)
-}
-
 @keyframes fade{
 0%{opacity:1}
 100%{opacity:0;transform:scale(.3)}
@@ -214,57 +196,66 @@ transform:rotate(45deg)
 
 <script>
 
-/* AUTO GENERATE 150 COMPANIES */
-
-const companies=[];
-
-/* WORKDAY 100 */
+/* REAL COMPANY DOMAIN POOLS */
 
 const workdayDomains=[
 "apple.com","amazon.com","microsoft.com","adobe.com","walmart.com",
 "target.com","cisco.com","intel.com","ibm.com","oracle.com"
 ];
 
-for(let i=0;i<100;i++){
-let d=workdayDomains[i%workdayDomains.length];
-companies.push({
-name:"Workday Company "+(i+1),
-domain:d,
-ats:"Workday",
-url:"https://"+d+"/careers"
-});
-}
-
-/* GREENHOUSE 30 */
-
 const greenhouseDomains=[
 "stripe.com","hubspot.com","dropbox.com","shopify.com","reddit.com"
 ];
-
-for(let i=0;i<30;i++){
-let d=greenhouseDomains[i%greenhouseDomains.length];
-companies.push({
-name:"Greenhouse Company "+(i+1),
-domain:d,
-ats:"Greenhouse",
-url:"https://boards.greenhouse.io/"+d.split(".")[0]
-});
-}
-
-/* LEVER 20 */
 
 const leverDomains=[
 "notion.so","figma.com","canva.com","rippling.com","postman.com"
 ];
 
-for(let i=0;i<20;i++){
-let d=leverDomains[i%leverDomains.length];
+const companies=[];
+
+/* WORKDAY 100 */
+
+for(let i=0;i<100;i++){
+
+let d=workdayDomains[i%workdayDomains.length];
+
 companies.push({
-name:"Lever Company "+(i+1),
+name:d.replace(".com","").toUpperCase(),
+domain:d,
+ats:"Workday",
+url:"https://"+d+"/careers"
+});
+
+}
+
+/* GREENHOUSE 30 */
+
+for(let i=0;i<30;i++){
+
+let d=greenhouseDomains[i%greenhouseDomains.length];
+
+companies.push({
+name:d.replace(".com","").toUpperCase(),
+domain:d,
+ats:"Greenhouse",
+url:"https://boards.greenhouse.io/"+d.split(".")[0]
+});
+
+}
+
+/* LEVER 20 */
+
+for(let i=0;i<20;i++){
+
+let d=leverDomains[i%leverDomains.length];
+
+companies.push({
+name:d.replace(".com","").toUpperCase(),
 domain:d,
 ats:"Lever",
 url:"https://jobs.lever.co/"+d.split(".")[0]
 });
+
 }
 
 let activeATS="";
@@ -318,6 +309,7 @@ const ticker=document.getElementById("tickerTrack");
 companies.concat(companies).forEach(c=>{
 
 const item=document.createElement("div");
+
 item.className="ticker-item";
 
 item.innerHTML=`
@@ -335,21 +327,13 @@ ticker.appendChild(item);
 
 const cursor=document.getElementById("cursor");
 
-const shapes=["square","circle","triangle","diamond"];
-
 document.addEventListener("mousemove",e=>{
 
 cursor.style.left=e.clientX+"px";
 cursor.style.top=e.clientY+"px";
 
-for(let i=0;i<2;i++){
-
 const p=document.createElement("div");
-
-p.classList.add("particle");
-
-const shape=shapes[Math.floor(Math.random()*shapes.length)];
-p.classList.add(shape);
+p.className="particle square";
 
 p.style.left=e.clientX+"px";
 p.style.top=e.clientY+"px";
@@ -357,8 +341,6 @@ p.style.top=e.clientY+"px";
 document.body.appendChild(p);
 
 setTimeout(()=>p.remove(),2000);
-
-}
 
 });
 
