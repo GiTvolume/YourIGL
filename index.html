@@ -1,1 +1,399 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ApplyDirect — ATS Explorer</title>
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:Inter,system-ui;
+background:linear-gradient(135deg,#0f172a,#2563eb,#38bdf8);
+min-height:100vh;
+color:white;
+display:flex;
+cursor:none;
+overflow-x:hidden;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:210px;
+background:rgba(15,23,42,.85);
+padding:30px 20px;
+display:flex;
+flex-direction:column;
+gap:16px;
+backdrop-filter:blur(10px);
+}
+
+.sidebar h2{
+font-size:18px;
+color:#fbbf24;
+}
+
+.sidebar div{
+cursor:pointer;
+opacity:.85;
+font-size:14px;
+}
+
+.sidebar div:hover{opacity:1}
+
+/* MAIN */
+
+.main{
+flex:1;
+padding:30px;
+}
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:18px;
+}
+
+.header input{
+padding:9px;
+border:none;
+border-radius:6px;
+}
+
+/* STATS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:14px;
+margin-bottom:20px;
+}
+
+.stat{
+background:rgba(255,255,255,.15);
+padding:14px;
+border-radius:8px;
+backdrop-filter:blur(8px);
+}
+
+/* FILTER */
+
+.filters{
+margin-bottom:15px;
+display:flex;
+gap:8px;
+}
+
+.filters button{
+border:none;
+padding:5px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* GRID (SMALLER CARDS) */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+gap:12px;
+padding-bottom:110px;
+}
+
+/* CARD */
+
+.card{
+background:rgba(255,255,255,.15);
+padding:12px;
+border-radius:10px;
+transition:.25s;
+border:1px solid rgba(255,255,255,.12);
+}
+
+.card:hover{
+transform:translateY(-3px);
+border-color:rgba(255,255,255,.35);
+}
+
+.card img{
+width:26px;
+margin-bottom:6px;
+}
+
+.card h3{
+font-size:14px;
+margin-bottom:3px;
+}
+
+.card span{
+font-size:12px;
+opacity:.9;
+}
+
+.card a{
+display:inline-block;
+margin-top:6px;
+background:white;
+color:black;
+padding:4px 8px;
+border-radius:6px;
+text-decoration:none;
+font-size:11px;
+}
+
+/* TICKER */
+
+.ticker{
+position:fixed;
+bottom:0;
+width:100%;
+height:65px;
+background:#0f172a;
+display:flex;
+align-items:center;
+overflow:hidden;
+}
+
+.ticker-track{
+display:flex;
+gap:40px;
+animation:scroll 30s linear infinite;
+}
+
+.ticker:hover .ticker-track{
+animation-play-state:paused;
+}
+
+.ticker-item{
+display:flex;
+align-items:center;
+gap:6px;
+cursor:pointer;
+font-size:13px;
+}
+
+.ticker-item img{
+width:22px;
+}
+
+@keyframes scroll{
+0%{transform:translateX(0)}
+100%{transform:translateX(-50%)}
+}
+
+/* CURSOR */
+
+.cursor{
+position:fixed;
+width:10px;
+height:10px;
+background:#fbbf24;
+border-radius:50%;
+pointer-events:none;
+z-index:9999;
+}
+
+/* GOLD PARTICLES */
+
+.particle{
+position:fixed;
+opacity:.9;
+pointer-events:none;
+animation:fade 2s forwards;
+}
+
+.square{width:6px;height:6px;background:#fbbf24}
+.circle{width:6px;height:6px;background:#fbbf24;border-radius:50%}
+
+.triangle{
+width:0;height:0;
+border-left:4px solid transparent;
+border-right:4px solid transparent;
+border-bottom:7px solid #fbbf24
+}
+
+.diamond{
+width:6px;height:6px;
+background:#fbbf24;
+transform:rotate(45deg)
+}
+
+@keyframes fade{
+0%{opacity:1}
+100%{opacity:0;transform:scale(.3)}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<div class="sidebar">
+<h2>ApplyDirect</h2>
+<div onclick="setATS('')">All</div>
+<div onclick="setATS('Workday')">Workday</div>
+<div onclick="setATS('Greenhouse')">Greenhouse</div>
+<div onclick="setATS('Lever')">Lever</div>
+</div>
+
+<div class="main">
+
+<div class="header">
+<h1>ATS Explorer</h1>
+<input id="search" placeholder="Search company">
+</div>
+
+<div class="stats">
+<div class="stat"><b id="companyCount"></b><br>Companies</div>
+<div class="stat"><b>3</b><br>ATS Platforms</div>
+<div class="stat"><b id="resumeStatus">No</b><br>Resume Uploaded</div>
+</div>
+
+Upload Resume: <input type="file" id="resumeUpload">
+
+<div class="grid" id="grid"></div>
+
+</div>
+
+<div class="ticker">
+<div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<script>
+
+const companies=[
+{name:"Apple",domain:"apple.com",ats:"Workday",url:"https://jobs.apple.com"},
+{name:"Amazon",domain:"amazon.com",ats:"Workday",url:"https://amazon.jobs"},
+{name:"Microsoft",domain:"microsoft.com",ats:"Workday",url:"https://careers.microsoft.com"},
+{name:"Adobe",domain:"adobe.com",ats:"Workday",url:"https://adobe.wd5.myworkdayjobs.com"},
+{name:"Netflix",domain:"netflix.com",ats:"Workday",url:"https://jobs.netflix.com"},
+{name:"Walmart",domain:"walmart.com",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com"},
+{name:"Target",domain:"target.com",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com"},
+{name:"Cisco",domain:"cisco.com",ats:"Workday",url:"https://cisco.wd1.myworkdayjobs.com"},
+{name:"Intel",domain:"intel.com",ats:"Workday",url:"https://intel.wd1.myworkdayjobs.com"},
+{name:"IBM",domain:"ibm.com",ats:"Workday",url:"https://ibm.wd1.myworkdayjobs.com"},
+{name:"Oracle",domain:"oracle.com",ats:"Workday",url:"https://oracle.wd1.myworkdayjobs.com"},
+{name:"Zoom",domain:"zoom.us",ats:"Workday",url:"https://zoom.wd5.myworkdayjobs.com"},
+
+{name:"Stripe",domain:"stripe.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/stripe"},
+{name:"HubSpot",domain:"hubspot.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/hubspot"},
+{name:"Dropbox",domain:"dropbox.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/dropbox"},
+
+{name:"Notion",domain:"notion.so",ats:"Lever",url:"https://jobs.lever.co/notion"},
+{name:"Figma",domain:"figma.com",ats:"Lever",url:"https://jobs.lever.co/figma"}
+];
+
+let activeATS="";
+
+document.getElementById("companyCount").innerText=companies.length;
+
+function render(){
+
+const q=document.getElementById("search").value.toLowerCase();
+
+const filtered=companies.filter(c =>
+c.name.toLowerCase().includes(q) &&
+(activeATS=="" || c.ats==activeATS)
+);
+
+const grid=document.getElementById("grid");
+grid.innerHTML="";
+
+filtered.forEach(c=>{
+
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+<img src="https://logo.clearbit.com/${c.domain}" onerror="this.src='https://placehold.co/40x40'">
+<h3>${c.name}</h3>
+<span>${c.ats}</span>
+<br>
+<a href="${c.url}" target="_blank">Open Careers</a>
+`;
+
+grid.appendChild(card);
+
+});
+
+}
+
+render();
+
+document.getElementById("search").oninput=render;
+
+function setATS(a){
+activeATS=a;
+render();
+}
+
+document.getElementById("resumeUpload").onchange=function(){
+document.getElementById("resumeStatus").innerText="Yes";
+};
+
+/* TICKER */
+
+const ticker=document.getElementById("tickerTrack");
+
+companies.concat(companies).forEach(c=>{
+
+const item=document.createElement("div");
+
+item.className="ticker-item";
+
+item.innerHTML=`
+<img src="https://logo.clearbit.com/${c.domain}" onerror="this.src='https://placehold.co/30x30'">
+${c.name}
+`;
+
+item.onclick=()=>window.open(c.url);
+
+ticker.appendChild(item);
+
+});
+
+/* CURSOR */
+
+const cursor=document.getElementById("cursor");
+
+const shapes=["square","circle","triangle","diamond"];
+
+document.addEventListener("mousemove",e=>{
+
+cursor.style.left=e.clientX+"px";
+cursor.style.top=e.clientY+"px";
+
+for(let i=0;i<2;i++){
+
+const p=document.createElement("div");
+
+p.classList.add("particle");
+
+const shape=shapes[Math.floor(Math.random()*shapes.length)];
+p.classList.add(shape);
+
+p.style.left=e.clientX+"px";
+p.style.top=e.clientY+"px";
+
+document.body.appendChild(p);
+
+setTimeout(()=>p.remove(),2000);
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
 
