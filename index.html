@@ -28,21 +28,14 @@ padding:30px 20px;
 display:flex;
 flex-direction:column;
 gap:16px;
-backdrop-filter:blur(10px);
 }
 
-.sidebar h2{
-font-size:18px;
-color:#fbbf24;
-}
+.sidebar h2{color:#fbbf24}
 
 .sidebar div{
 cursor:pointer;
-opacity:.85;
-font-size:14px;
+opacity:.9;
 }
-
-.sidebar div:hover{opacity:1}
 
 /* MAIN */
 
@@ -56,85 +49,32 @@ padding:30px;
 .header{
 display:flex;
 justify-content:space-between;
-align-items:center;
-margin-bottom:18px;
-}
-
-.header input{
-padding:9px;
-border:none;
-border-radius:6px;
-}
-
-/* STATS */
-
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-gap:14px;
 margin-bottom:20px;
 }
 
-.stat{
-background:rgba(255,255,255,.15);
-padding:14px;
-border-radius:8px;
-backdrop-filter:blur(8px);
-}
-
-/* FILTER */
-
-.filters{
-margin-bottom:15px;
-display:flex;
-gap:8px;
-}
-
-.filters button{
-border:none;
-padding:5px 10px;
+.header input{
+padding:10px;
 border-radius:6px;
-cursor:pointer;
+border:none;
 }
 
-/* GRID (SMALLER CARDS) */
+/* GRID */
 
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
 gap:12px;
-padding-bottom:110px;
+padding-bottom:120px;
 }
-
-/* CARD */
 
 .card{
 background:rgba(255,255,255,.15);
 padding:12px;
 border-radius:10px;
-transition:.25s;
-border:1px solid rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.15);
 }
 
-.card:hover{
-transform:translateY(-3px);
-border-color:rgba(255,255,255,.35);
-}
-
-.card img{
-width:26px;
-margin-bottom:6px;
-}
-
-.card h3{
-font-size:14px;
-margin-bottom:3px;
-}
-
-.card span{
-font-size:12px;
-opacity:.9;
-}
+.card img{width:26px}
 
 .card a{
 display:inline-block;
@@ -144,7 +84,7 @@ color:black;
 padding:4px 8px;
 border-radius:6px;
 text-decoration:none;
-font-size:11px;
+font-size:12px;
 }
 
 /* TICKER */
@@ -175,12 +115,9 @@ display:flex;
 align-items:center;
 gap:6px;
 cursor:pointer;
-font-size:13px;
 }
 
-.ticker-item img{
-width:22px;
-}
+.ticker-item img{width:22px}
 
 @keyframes scroll{
 0%{transform:translateX(0)}
@@ -199,8 +136,6 @@ pointer-events:none;
 z-index:9999;
 }
 
-/* GOLD PARTICLES */
-
 .particle{
 position:fixed;
 opacity:.9;
@@ -210,19 +145,6 @@ animation:fade 2s forwards;
 
 .square{width:6px;height:6px;background:#fbbf24}
 .circle{width:6px;height:6px;background:#fbbf24;border-radius:50%}
-
-.triangle{
-width:0;height:0;
-border-left:4px solid transparent;
-border-right:4px solid transparent;
-border-bottom:7px solid #fbbf24
-}
-
-.diamond{
-width:6px;height:6px;
-background:#fbbf24;
-transform:rotate(45deg)
-}
 
 @keyframes fade{
 0%{opacity:1}
@@ -252,14 +174,6 @@ transform:rotate(45deg)
 <input id="search" placeholder="Search company">
 </div>
 
-<div class="stats">
-<div class="stat"><b id="companyCount"></b><br>Companies</div>
-<div class="stat"><b>3</b><br>ATS Platforms</div>
-<div class="stat"><b id="resumeStatus">No</b><br>Resume Uploaded</div>
-</div>
-
-Upload Resume: <input type="file" id="resumeUpload">
-
 <div class="grid" id="grid"></div>
 
 </div>
@@ -268,33 +182,11 @@ Upload Resume: <input type="file" id="resumeUpload">
 <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
+<script src="companies.js"></script>
+
 <script>
 
-const companies=[
-{name:"Apple",domain:"apple.com",ats:"Workday",url:"https://jobs.apple.com"},
-{name:"Amazon",domain:"amazon.com",ats:"Workday",url:"https://amazon.jobs"},
-{name:"Microsoft",domain:"microsoft.com",ats:"Workday",url:"https://careers.microsoft.com"},
-{name:"Adobe",domain:"adobe.com",ats:"Workday",url:"https://adobe.wd5.myworkdayjobs.com"},
-{name:"Netflix",domain:"netflix.com",ats:"Workday",url:"https://jobs.netflix.com"},
-{name:"Walmart",domain:"walmart.com",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com"},
-{name:"Target",domain:"target.com",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com"},
-{name:"Cisco",domain:"cisco.com",ats:"Workday",url:"https://cisco.wd1.myworkdayjobs.com"},
-{name:"Intel",domain:"intel.com",ats:"Workday",url:"https://intel.wd1.myworkdayjobs.com"},
-{name:"IBM",domain:"ibm.com",ats:"Workday",url:"https://ibm.wd1.myworkdayjobs.com"},
-{name:"Oracle",domain:"oracle.com",ats:"Workday",url:"https://oracle.wd1.myworkdayjobs.com"},
-{name:"Zoom",domain:"zoom.us",ats:"Workday",url:"https://zoom.wd5.myworkdayjobs.com"},
-
-{name:"Stripe",domain:"stripe.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/stripe"},
-{name:"HubSpot",domain:"hubspot.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/hubspot"},
-{name:"Dropbox",domain:"dropbox.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/dropbox"},
-
-{name:"Notion",domain:"notion.so",ats:"Lever",url:"https://jobs.lever.co/notion"},
-{name:"Figma",domain:"figma.com",ats:"Lever",url:"https://jobs.lever.co/figma"}
-];
-
 let activeATS="";
-
-document.getElementById("companyCount").innerText=companies.length;
 
 function render(){
 
@@ -336,59 +228,33 @@ activeATS=a;
 render();
 }
 
-document.getElementById("resumeUpload").onchange=function(){
-document.getElementById("resumeStatus").innerText="Yes";
-};
-
 /* TICKER */
 
 const ticker=document.getElementById("tickerTrack");
 
 companies.concat(companies).forEach(c=>{
-
 const item=document.createElement("div");
-
 item.className="ticker-item";
-
-item.innerHTML=`
-<img src="https://logo.clearbit.com/${c.domain}" onerror="this.src='https://placehold.co/30x30'">
-${c.name}
-`;
-
+item.innerHTML=`<img src="https://logo.clearbit.com/${c.domain}">${c.name}`;
 item.onclick=()=>window.open(c.url);
-
 ticker.appendChild(item);
-
 });
 
 /* CURSOR */
 
 const cursor=document.getElementById("cursor");
 
-const shapes=["square","circle","triangle","diamond"];
-
 document.addEventListener("mousemove",e=>{
-
 cursor.style.left=e.clientX+"px";
 cursor.style.top=e.clientY+"px";
 
-for(let i=0;i<2;i++){
-
 const p=document.createElement("div");
-
-p.classList.add("particle");
-
-const shape=shapes[Math.floor(Math.random()*shapes.length)];
-p.classList.add(shape);
-
+p.className="particle square";
 p.style.left=e.clientX+"px";
 p.style.top=e.clientY+"px";
-
 document.body.appendChild(p);
 
 setTimeout(()=>p.remove(),2000);
-
-}
 
 });
 
@@ -396,4 +262,3 @@ setTimeout(()=>p.remove(),2000);
 
 </body>
 </html>
-
