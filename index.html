@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ApplyDirect — ATS Career Explorer</title>
+<title>ApplyDirect — ATS Explorer</title>
 
 <style>
 
@@ -11,54 +11,89 @@
 
 body{
 font-family:Inter,system-ui;
-background:linear-gradient(120deg,#3b82f6,#6366f1,#0ea5e9);
+background:linear-gradient(120deg,#2563eb,#6366f1,#0ea5e9);
 min-height:100vh;
 color:white;
-overflow-x:hidden;
+display:flex;
+cursor:none;
 }
 
-/* NAVBAR */
+/* SIDEBAR */
 
-.nav{
+.sidebar{
+width:220px;
+background:rgba(0,0,0,.35);
+padding:30px 20px;
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+.sidebar h2{
+font-size:18px;
+margin-bottom:20px;
+}
+
+.sidebar div{
+cursor:pointer;
+opacity:.8;
+}
+
+.sidebar div:hover{
+opacity:1;
+}
+
+/* MAIN */
+
+.main{
+flex:1;
+padding:30px;
+}
+
+/* HEADER */
+
+.header{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:16px 40px;
-background:rgba(0,0,0,.35);
-backdrop-filter:blur(10px);
+margin-bottom:20px;
 }
 
-.logo{
-font-size:18px;
-font-weight:700;
-}
-
-/* HERO */
-
-.hero{
-text-align:center;
-padding:40px 20px 20px 20px;
-}
-
-.hero h1{
-font-size:36px;
-margin-bottom:6px;
-}
-
-/* SEARCH */
-
-.controls{
-display:flex;
-gap:12px;
-justify-content:center;
-margin:20px 0;
-}
-
-.controls input,
-.controls select{
+.header input{
 padding:10px;
 border:none;
 border-radius:6px;
+}
+
+/* STATS */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:16px;
+margin-bottom:25px;
+}
+
+.stat{
+background:rgba(255,255,255,.2);
+padding:15px;
+border-radius:8px;
+backdrop-filter:blur(8px);
+}
+
+/* FILTER */
+
+.filters{
+margin-bottom:15px;
+display:flex;
+gap:10px;
+}
+
+.filters button{
+border:none;
+padding:6px 12px;
+border-radius:6px;
+cursor:pointer;
 }
 
 /* GRID */
@@ -66,39 +101,32 @@ border-radius:6px;
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-gap:20px;
-padding:20px 40px 100px 40px;
+gap:16px;
+padding-bottom:100px;
 }
 
 .card{
-background:rgba(255,255,255,.15);
-border-radius:10px;
-padding:16px;
+background:rgba(255,255,255,.2);
+padding:14px;
+border-radius:8px;
 backdrop-filter:blur(8px);
 transition:.3s;
 }
 
 .card:hover{
-transform:translateY(-5px);
-box-shadow:0 10px 30px rgba(0,0,0,.4);
+transform:translateY(-4px);
 }
 
 .card img{
-width:34px;
-margin-bottom:6px;
-}
-
-.card span{
-font-size:13px;
-color:#f1f5f9;
+width:32px;
 }
 
 .card a{
 display:inline-block;
-margin-top:8px;
-color:#0f172a;
+margin-top:6px;
 background:white;
-padding:6px 12px;
+color:black;
+padding:5px 10px;
 border-radius:6px;
 text-decoration:none;
 font-size:13px;
@@ -110,7 +138,7 @@ font-size:13px;
 position:fixed;
 right:0;
 top:0;
-width:320px;
+width:300px;
 height:100%;
 background:white;
 color:black;
@@ -125,16 +153,16 @@ position:fixed;
 bottom:0;
 width:100%;
 height:70px;
-background:#0f172a;
-overflow:hidden;
+background:#111827;
 display:flex;
 align-items:center;
+overflow:hidden;
 }
 
 .ticker-track{
 display:flex;
 gap:50px;
-animation:scroll 30s linear infinite;
+animation:scroll 28s linear infinite;
 }
 
 .ticker-item{
@@ -142,12 +170,10 @@ display:flex;
 align-items:center;
 gap:8px;
 cursor:pointer;
-color:white;
-font-size:14px;
 }
 
 .ticker-item img{
-width:26px;
+width:24px;
 }
 
 @keyframes scroll{
@@ -171,15 +197,24 @@ z-index:9999;
 
 .particle{
 position:fixed;
-width:6px;
-height:6px;
-border-radius:50%;
+opacity:.9;
+pointer-events:none;
 animation:fade 2s forwards;
 }
 
+.square{width:6px;height:6px;background:white}
+.circle{width:6px;height:6px;background:white;border-radius:50%}
+.triangle{
+width:0;height:0;
+border-left:4px solid transparent;
+border-right:4px solid transparent;
+border-bottom:7px solid white
+}
+.diamond{width:6px;height:6px;background:white;transform:rotate(45deg)}
+
 @keyframes fade{
 0%{opacity:1}
-100%{opacity:0;transform:scale(.2)}
+100%{opacity:0;transform:scale(.3)}
 }
 
 </style>
@@ -190,26 +225,39 @@ animation:fade 2s forwards;
 
 <div class="cursor" id="cursor"></div>
 
-<div class="nav">
-<div class="logo">ApplyDirect</div>
+<div class="sidebar">
+<h2>ApplyDirect</h2>
+<div>Dashboard</div>
+<div>ATS Explorer</div>
+<div>Bookmarks</div>
 </div>
 
-<div class="hero">
-<h1>Direct ATS Job Discovery</h1>
-<p>Find company career portals instantly</p>
-</div>
+<div class="main">
 
-<div class="controls">
+<div class="header">
+<h1>ATS Explorer</h1>
 <input id="search" placeholder="Search company">
-<select id="atsFilter">
-<option value="">All ATS</option>
-<option value="Workday">Workday</option>
-<option value="Greenhouse">Greenhouse</option>
-<option value="Lever">Lever</option>
-</select>
 </div>
+
+<div class="stats">
+<div class="stat"><b id="companyCount"></b><br>Companies</div>
+<div class="stat"><b>4</b><br>ATS Platforms</div>
+<div class="stat"><b id="bookmarkCount">0</b><br>Bookmarks</div>
+<div class="stat"><b id="resumeStatus">No</b><br>Resume Uploaded</div>
+</div>
+
+<div class="filters">
+<button onclick="setATS('')">All</button>
+<button onclick="setATS('Workday')">Workday</button>
+<button onclick="setATS('Greenhouse')">Greenhouse</button>
+<button onclick="setATS('Lever')">Lever</button>
+</div>
+
+Upload Resume: <input type="file" id="resumeUpload">
 
 <div class="grid" id="grid"></div>
+
+</div>
 
 <div class="panel" id="panel"></div>
 
@@ -219,8 +267,9 @@ animation:fade 2s forwards;
 
 <script>
 
-const companies=[
+/* COMPANY DATA */
 
+const companies=[
 {name:"Walmart",domain:"walmart.com",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com"},
 {name:"Amazon",domain:"amazon.com",ats:"Workday",url:"https://amazon.jobs"},
 {name:"Apple",domain:"apple.com",ats:"Workday",url:"https://jobs.apple.com"},
@@ -231,10 +280,11 @@ const companies=[
 {name:"Accenture",domain:"accenture.com",ats:"Workday",url:"https://accenture.wd3.myworkdayjobs.com"},
 {name:"Target",domain:"target.com",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com"},
 {name:"Nordstrom",domain:"nordstrom.com",ats:"Workday",url:"https://nordstrom.wd5.myworkdayjobs.com"}
-
 ];
 
 let activeATS="";
+
+document.getElementById("companyCount").innerText=companies.length;
 
 /* GRID */
 
@@ -242,7 +292,7 @@ function render(){
 
 const q=document.getElementById("search").value.toLowerCase();
 
-const filtered=companies.filter(c=>
+const filtered=companies.filter(c =>
 c.name.toLowerCase().includes(q) &&
 (activeATS=="" || c.ats==activeATS)
 );
@@ -273,9 +323,15 @@ render();
 
 document.getElementById("search").oninput=render;
 
-document.getElementById("atsFilter").onchange=function(){
-activeATS=this.value;
+function setATS(a){
+activeATS=a;
 render();
+}
+
+/* RESUME */
+
+document.getElementById("resumeUpload").onchange=function(){
+document.getElementById("resumeStatus").innerText="Yes";
 };
 
 /* TICKER */
@@ -285,7 +341,6 @@ const ticker=document.getElementById("tickerTrack");
 companies.concat(companies).forEach(c=>{
 
 const item=document.createElement("div");
-
 item.className="ticker-item";
 
 item.innerHTML=`
@@ -303,19 +358,20 @@ ticker.appendChild(item);
 
 const cursor=document.getElementById("cursor");
 
+const shapes=["square","circle","triangle","diamond"];
+
 document.addEventListener("mousemove",e=>{
 
 cursor.style.left=e.clientX+"px";
 cursor.style.top=e.clientY+"px";
 
-const colors=["#f87171","#facc15","#4ade80","#60a5fa","#a78bfa"];
-
 for(let i=0;i<3;i++){
 
 const p=document.createElement("div");
-p.className="particle";
+p.classList.add("particle");
 
-p.style.background=colors[Math.floor(Math.random()*colors.length)];
+const shape=shapes[Math.floor(Math.random()*shapes.length)];
+p.classList.add(shape);
 
 p.style.left=e.clientX+"px";
 p.style.top=e.clientY+"px";
