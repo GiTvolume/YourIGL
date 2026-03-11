@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ApplyDirect — ATS Explorer</title>
+<title>ApplyDirect ATS Explorer</title>
 
 <style>
 
@@ -13,8 +13,8 @@ body{
 font-family:Inter,system-ui;
 background:linear-gradient(135deg,#0f172a,#2563eb,#38bdf8);
 min-height:100vh;
-color:white;
 display:flex;
+color:white;
 cursor:none;
 overflow-x:hidden;
 }
@@ -22,26 +22,22 @@ overflow-x:hidden;
 /* SIDEBAR */
 
 .sidebar{
-width:210px;
-background:rgba(15,23,42,.9);
+width:200px;
+background:#0f172a;
 padding:30px 20px;
 display:flex;
 flex-direction:column;
-gap:16px;
+gap:18px;
 }
 
 .sidebar h2{
 color:#fbbf24;
-font-size:18px;
 }
 
 .sidebar div{
 cursor:pointer;
-font-size:14px;
-opacity:.9;
+opacity:.85;
 }
-
-.sidebar div:hover{opacity:1}
 
 /* MAIN */
 
@@ -50,12 +46,9 @@ flex:1;
 padding:30px;
 }
 
-/* HEADER */
-
 .header{
 display:flex;
 justify-content:space-between;
-align-items:center;
 margin-bottom:20px;
 }
 
@@ -76,16 +69,23 @@ padding-bottom:120px;
 
 .card{
 background:rgba(255,255,255,.15);
-padding:12px;
 border-radius:10px;
+padding:12px;
 border:1px solid rgba(255,255,255,.15);
 }
 
-.card img{width:26px}
+.card img{
+width:28px;
+margin-bottom:6px;
+}
 
-.card h3{font-size:14px}
+.card h3{
+font-size:14px;
+}
 
-.card span{font-size:12px}
+.card span{
+font-size:12px;
+}
 
 .card a{
 display:inline-block;
@@ -94,8 +94,8 @@ background:white;
 color:black;
 padding:4px 8px;
 border-radius:6px;
-text-decoration:none;
 font-size:11px;
+text-decoration:none;
 }
 
 /* TICKER */
@@ -104,8 +104,8 @@ font-size:11px;
 position:fixed;
 bottom:0;
 width:100%;
-height:65px;
-background:#0f172a;
+height:60px;
+background:#020617;
 display:flex;
 align-items:center;
 overflow:hidden;
@@ -114,7 +114,7 @@ overflow:hidden;
 .ticker-track{
 display:flex;
 gap:40px;
-animation:scroll 70s linear infinite;
+animation:scroll 90s linear infinite;
 }
 
 .ticker:hover .ticker-track{
@@ -126,10 +126,11 @@ display:flex;
 align-items:center;
 gap:6px;
 cursor:pointer;
-font-size:13px;
 }
 
-.ticker-item img{width:22px}
+.ticker-item img{
+width:22px;
+}
 
 @keyframes scroll{
 0%{transform:translateX(0)}
@@ -150,17 +151,16 @@ z-index:9999;
 
 .particle{
 position:fixed;
+width:6px;
+height:6px;
+background:#fbbf24;
 opacity:.9;
-pointer-events:none;
 animation:fade 2s forwards;
 }
 
-.square{width:6px;height:6px;background:#fbbf24}
-.circle{width:6px;height:6px;background:#fbbf24;border-radius:50%}
-
 @keyframes fade{
 0%{opacity:1}
-100%{opacity:0;transform:scale(.3)}
+100%{opacity:0;transform:scale(.2)}
 }
 
 </style>
@@ -196,71 +196,43 @@ animation:fade 2s forwards;
 
 <script>
 
-/* REAL COMPANY DOMAIN POOLS */
+const companies=[
 
-const workdayDomains=[
-"apple.com","amazon.com","microsoft.com","adobe.com","walmart.com",
-"target.com","cisco.com","intel.com","ibm.com","oracle.com"
+{name:"Apple",domain:"apple.com",ats:"Workday",url:"https://jobs.apple.com"},
+{name:"Amazon",domain:"amazon.com",ats:"Workday",url:"https://amazon.jobs"},
+{name:"Microsoft",domain:"microsoft.com",ats:"Workday",url:"https://careers.microsoft.com"},
+{name:"Adobe",domain:"adobe.com",ats:"Workday",url:"https://adobe.wd5.myworkdayjobs.com"},
+{name:"Walmart",domain:"walmart.com",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com"},
+{name:"Target",domain:"target.com",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com"},
+{name:"Cisco",domain:"cisco.com",ats:"Workday",url:"https://cisco.wd1.myworkdayjobs.com"},
+{name:"Intel",domain:"intel.com",ats:"Workday",url:"https://intel.wd1.myworkdayjobs.com"},
+{name:"IBM",domain:"ibm.com",ats:"Workday",url:"https://ibm.wd1.myworkdayjobs.com"},
+{name:"Oracle",domain:"oracle.com",ats:"Workday",url:"https://oracle.wd1.myworkdayjobs.com"},
+{name:"Zoom",domain:"zoom.us",ats:"Workday",url:"https://zoom.wd5.myworkdayjobs.com"},
+{name:"Dell",domain:"dell.com",ats:"Workday",url:"https://dell.wd1.myworkdayjobs.com"},
+{name:"HP",domain:"hp.com",ats:"Workday",url:"https://hp.wd1.myworkdayjobs.com"},
+{name:"Accenture",domain:"accenture.com",ats:"Workday",url:"https://accenture.wd3.myworkdayjobs.com"},
+{name:"Nike",domain:"nike.com",ats:"Workday",url:"https://nike.wd5.myworkdayjobs.com"},
+{name:"PepsiCo",domain:"pepsico.com",ats:"Workday",url:"https://pepsico.wd5.myworkdayjobs.com"},
+{name:"CocaCola",domain:"coca-colacompany.com",ats:"Workday",url:"https://coca-colacompany.wd5.myworkdayjobs.com"},
+{name:"Starbucks",domain:"starbucks.com",ats:"Workday",url:"https://starbucks.wd5.myworkdayjobs.com"},
+{name:"McDonalds",domain:"mcdonalds.com",ats:"Workday",url:"https://mcdonalds.wd5.myworkdayjobs.com"},
+
+{name:"Stripe",domain:"stripe.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/stripe"},
+{name:"HubSpot",domain:"hubspot.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/hubspot"},
+{name:"Dropbox",domain:"dropbox.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/dropbox"},
+{name:"Shopify",domain:"shopify.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/shopify"},
+{name:"Reddit",domain:"reddit.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/reddit"},
+{name:"Coinbase",domain:"coinbase.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/coinbase"},
+
+{name:"Notion",domain:"notion.so",ats:"Lever",url:"https://jobs.lever.co/notion"},
+{name:"Figma",domain:"figma.com",ats:"Lever",url:"https://jobs.lever.co/figma"},
+{name:"Canva",domain:"canva.com",ats:"Lever",url:"https://jobs.lever.co/canva"},
+{name:"Rippling",domain:"rippling.com",ats:"Lever",url:"https://jobs.lever.co/rippling"}
+
 ];
-
-const greenhouseDomains=[
-"stripe.com","hubspot.com","dropbox.com","shopify.com","reddit.com"
-];
-
-const leverDomains=[
-"notion.so","figma.com","canva.com","rippling.com","postman.com"
-];
-
-const companies=[];
-
-/* WORKDAY 100 */
-
-for(let i=0;i<100;i++){
-
-let d=workdayDomains[i%workdayDomains.length];
-
-companies.push({
-name:d.replace(".com","").toUpperCase(),
-domain:d,
-ats:"Workday",
-url:"https://"+d+"/careers"
-});
-
-}
-
-/* GREENHOUSE 30 */
-
-for(let i=0;i<30;i++){
-
-let d=greenhouseDomains[i%greenhouseDomains.length];
-
-companies.push({
-name:d.replace(".com","").toUpperCase(),
-domain:d,
-ats:"Greenhouse",
-url:"https://boards.greenhouse.io/"+d.split(".")[0]
-});
-
-}
-
-/* LEVER 20 */
-
-for(let i=0;i<20;i++){
-
-let d=leverDomains[i%leverDomains.length];
-
-companies.push({
-name:d.replace(".com","").toUpperCase(),
-domain:d,
-ats:"Lever",
-url:"https://jobs.lever.co/"+d.split(".")[0]
-});
-
-}
 
 let activeATS="";
-
-/* RENDER */
 
 function render(){
 
@@ -302,46 +274,33 @@ activeATS=a;
 render();
 }
 
-/* TICKER */
+/* ticker */
 
 const ticker=document.getElementById("tickerTrack");
 
 companies.concat(companies).forEach(c=>{
-
 const item=document.createElement("div");
-
 item.className="ticker-item";
-
-item.innerHTML=`
-<img src="https://logo.clearbit.com/${c.domain}">
-${c.name}
-`;
-
-item.onclick=()=>window.open(c.url);
-
+item.innerHTML=`<img src="https://logo.clearbit.com/${c.domain}">${c.name}`;
 ticker.appendChild(item);
-
 });
 
-/* CURSOR */
+/* cursor */
 
 const cursor=document.getElementById("cursor");
 
 document.addEventListener("mousemove",e=>{
-
 cursor.style.left=e.clientX+"px";
 cursor.style.top=e.clientY+"px";
 
 const p=document.createElement("div");
-p.className="particle square";
-
+p.className="particle";
 p.style.left=e.clientX+"px";
 p.style.top=e.clientY+"px";
 
 document.body.appendChild(p);
 
 setTimeout(()=>p.remove(),2000);
-
 });
 
 </script>
