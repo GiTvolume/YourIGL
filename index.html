@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ApplyDirect — ATS Explorer</title>
+<title>ApplyDirect — ATS Career Explorer</title>
 
 <style>
 
@@ -29,19 +29,14 @@ flex-direction:column;
 gap:20px;
 }
 
-.sidebar h2{
-font-size:18px;
-margin-bottom:20px;
-}
+.sidebar h2{font-size:18px}
 
 .sidebar div{
 cursor:pointer;
-opacity:.8;
+opacity:.85;
 }
 
-.sidebar div:hover{
-opacity:1;
-}
+.sidebar div:hover{opacity:1}
 
 /* MAIN */
 
@@ -75,10 +70,9 @@ margin-bottom:25px;
 }
 
 .stat{
-background:rgba(255,255,255,.2);
+background:rgba(255,255,255,.25);
 padding:15px;
 border-radius:8px;
-backdrop-filter:blur(8px);
 }
 
 /* FILTER */
@@ -102,14 +96,13 @@ cursor:pointer;
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
 gap:16px;
-padding-bottom:100px;
+padding-bottom:120px;
 }
 
 .card{
-background:rgba(255,255,255,.2);
+background:rgba(255,255,255,.25);
 padding:14px;
 border-radius:8px;
-backdrop-filter:blur(8px);
 transition:.3s;
 }
 
@@ -119,6 +112,7 @@ transform:translateY(-4px);
 
 .card img{
 width:32px;
+margin-bottom:6px;
 }
 
 .card a{
@@ -153,7 +147,7 @@ position:fixed;
 bottom:0;
 width:100%;
 height:70px;
-background:#111827;
+background:#0f172a;
 display:flex;
 align-items:center;
 overflow:hidden;
@@ -241,7 +235,7 @@ border-bottom:7px solid white
 
 <div class="stats">
 <div class="stat"><b id="companyCount"></b><br>Companies</div>
-<div class="stat"><b>4</b><br>ATS Platforms</div>
+<div class="stat"><b>3</b><br>ATS Platforms</div>
 <div class="stat"><b id="bookmarkCount">0</b><br>Bookmarks</div>
 <div class="stat"><b id="resumeStatus">No</b><br>Resume Uploaded</div>
 </div>
@@ -270,6 +264,7 @@ Upload Resume: <input type="file" id="resumeUpload">
 /* COMPANY DATA */
 
 const companies=[
+
 {name:"Walmart",domain:"walmart.com",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com"},
 {name:"Amazon",domain:"amazon.com",ats:"Workday",url:"https://amazon.jobs"},
 {name:"Apple",domain:"apple.com",ats:"Workday",url:"https://jobs.apple.com"},
@@ -279,7 +274,21 @@ const companies=[
 {name:"Salesforce",domain:"salesforce.com",ats:"Workday",url:"https://salesforce.wd1.myworkdayjobs.com"},
 {name:"Accenture",domain:"accenture.com",ats:"Workday",url:"https://accenture.wd3.myworkdayjobs.com"},
 {name:"Target",domain:"target.com",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com"},
-{name:"Nordstrom",domain:"nordstrom.com",ats:"Workday",url:"https://nordstrom.wd5.myworkdayjobs.com"}
+{name:"Nordstrom",domain:"nordstrom.com",ats:"Workday",url:"https://nordstrom.wd5.myworkdayjobs.com"},
+
+/* many more companies for dataset */
+
+{name:"VMware",domain:"vmware.com",ats:"Workday",url:"https://vmware.wd1.myworkdayjobs.com"},
+{name:"Workday",domain:"workday.com",ats:"Workday",url:"https://workday.wd5.myworkdayjobs.com"},
+{name:"PayPal",domain:"paypal.com",ats:"Workday",url:"https://paypal.wd1.myworkdayjobs.com"},
+{name:"Cisco",domain:"cisco.com",ats:"Workday",url:"https://cisco.wd1.myworkdayjobs.com"},
+{name:"Intel",domain:"intel.com",ats:"Workday",url:"https://intel.wd1.myworkdayjobs.com"},
+{name:"IBM",domain:"ibm.com",ats:"Workday",url:"https://ibm.wd1.myworkdayjobs.com"},
+{name:"Oracle",domain:"oracle.com",ats:"Workday",url:"https://oracle.wd1.myworkdayjobs.com"},
+{name:"Zoom",domain:"zoom.us",ats:"Workday",url:"https://zoom.wd5.myworkdayjobs.com"},
+{name:"Dropbox",domain:"dropbox.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/dropbox"},
+{name:"Stripe",domain:"stripe.com",ats:"Lever",url:"https://jobs.lever.co/stripe"}
+
 ];
 
 let activeATS="";
