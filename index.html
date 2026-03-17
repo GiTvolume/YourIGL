@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 <head>
 <meta charset="UTF-8">
@@ -19,7 +18,62 @@ cursor:none;
 overflow-x:hidden;
 }
 
-/* SIDEBAR */
+/* ---------------- LOADER ---------------- */
+
+.loader{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#020617;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:99999;
+transition:opacity .8s ease;
+}
+
+.rocket-container{
+position:relative;
+width:80px;
+height:160px;
+overflow:hidden;
+}
+
+.rocket{
+font-size:80px;
+position:absolute;
+bottom:-80px;
+left:0;
+right:0;
+margin:auto;
+animation:fuel 6s linear forwards;
+}
+
+@keyframes fuel{
+0%{bottom:-80px}
+80%{bottom:20px}
+}
+
+.launch{
+animation:launch 1s ease forwards;
+}
+
+@keyframes launch{
+0%{transform:translateY(0)}
+100%{transform:translateY(-500px)}
+}
+
+.loader-text{
+margin-top:20px;
+font-size:14px;
+opacity:.7;
+letter-spacing:2px;
+}
+
+/* ---------------- SIDEBAR ---------------- */
 
 .sidebar{
 width:200px;
@@ -32,16 +86,11 @@ position:relative;
 z-index:10;
 }
 
-.sidebar h2{
-color:#fbbf24;
-}
+.sidebar h2{color:#fbbf24}
 
-.sidebar div{
-cursor:pointer;
-opacity:.85;
-}
+.sidebar div{cursor:pointer;opacity:.85}
 
-/* MAIN */
+/* ---------------- MAIN ---------------- */
 
 .main{
 flex:1;
@@ -83,13 +132,9 @@ width:28px;
 margin-bottom:6px;
 }
 
-.card h3{
-font-size:14px;
-}
+.card h3{font-size:14px}
 
-.card span{
-font-size:12px;
-}
+.card span{font-size:12px}
 
 .card a{
 display:inline-block;
@@ -122,9 +167,7 @@ gap:40px;
 animation:scroll 120s linear infinite;
 }
 
-.ticker:hover .ticker-track{
-animation-play-state:paused;
-}
+.ticker:hover .ticker-track{animation-play-state:paused}
 
 .ticker-item{
 display:flex;
@@ -133,9 +176,7 @@ gap:6px;
 cursor:pointer;
 }
 
-.ticker-item img{
-width:22px;
-}
+.ticker-item img{width:22px}
 
 @keyframes scroll{
 0%{transform:translateX(0)}
@@ -160,10 +201,21 @@ z-index:9999;
 }
 
 </style>
-
 </head>
 
 <body>
+
+<!-- LOADER -->
+
+<div class="loader" id="loader">
+
+<div class="rocket-container">
+<div class="rocket" id="rocket">🚀</div>
+</div>
+
+<div class="loader-text">Launching ATS Platform...</div>
+
+</div>
 
 <div class="cursor" id="cursor"></div>
 
@@ -191,6 +243,20 @@ z-index:9999;
 </div>
 
 <script>
+
+/* LOADER */
+
+setTimeout(()=>{
+document.getElementById("rocket").classList.add("launch")
+},6000)
+
+setTimeout(()=>{
+const loader=document.getElementById("loader")
+loader.style.opacity="0"
+setTimeout(()=>loader.remove(),800)
+},7000)
+
+/* DATA */
 
 const companies=[
 
@@ -274,8 +340,6 @@ const cursor=document.getElementById("cursor");
 document.addEventListener("mousemove",e=>{
 cursor.style.left=e.clientX+"px";
 cursor.style.top=e.clientY+"px";
-
-/* reduce particles to avoid UI interference */
 
 if(Math.random() < 0.2){
 
