@@ -3,1815 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LaunchPad — ATS Navigator</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>LaunchPad — Company Explorer</title>
+
 <style>
 :root {
-  --bg: #020409;
-  --bg2: #070d1a;
-  --bg3: #0d1629;
-  --surface: #111827;
-  --surface2: #1a2540;
-  --border: rgba(99,179,255,0.12);
-  --border2: rgba(99,179,255,0.25);
-  --accent: #3b82f6;
-  --accent2: #60a5fa;
-  --gold: #fbbf24;
-  --gold2: #fde68a;
-  --green: #10b981;
-  --red: #ef4444;
-  --orange: #f59e0b;
-  --purple: #8b5cf6;
-  --text: #e2e8f0;
-  --text2: #94a3b8;
-  --text3: #475569;
-  --font-head: 'Syne', sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  --glow: 0 0 20px rgba(59,130,246,0.3);
-  --glow-gold: 0 0 20px rgba(251,191,36,0.3);
+  --bg:#0B0F14;
+  --surface:#111827;
+  --border:rgba(255,255,255,0.06);
+  --text:#E5E7EB;
+  --text2:#6B7280;
+  --accent:#2563EB;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
-html, body {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-mono);
-  overflow: hidden;
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family: system-ui, -apple-system;
 }
 
-/* ── CURSOR ── */
-#cursor {
-  position: fixed;
-  width: 8px; height: 8px;
-  background: var(--gold);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 99999;
-  transition: transform 0.1s;
-  mix-blend-mode: screen;
-}
-#cursor-ring {
-  position: fixed;
-  width: 28px; height: 28px;
-  border: 1px solid rgba(251,191,36,0.4);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 99998;
-  transition: transform 0.15s, width 0.2s, height 0.2s;
-}
-
-/* ── LOADER ── */
-#loader {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 9999;
-  gap: 20px;
-  transition: opacity 0.8s ease;
-}
-.loader-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  animation: gridPulse 3s ease-in-out infinite;
-}
-@keyframes gridPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
-
-.loader-rocket {
-  font-size: 64px;
-  animation: rocketIdle 0.5s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 20px rgba(251,191,36,0.6));
-  position: relative; z-index: 1;
-}
-@keyframes rocketIdle { 0%{transform:translateY(0)} 100%{transform:translateY(-6px)} }
-.loader-rocket.launch { animation: rocketLaunch 1s cubic-bezier(0.4,0,0.2,1) forwards; }
-@keyframes rocketLaunch { 0%{transform:translateY(0) scale(1)} 30%{transform:translateY(8px) scale(0.95)} 100%{transform:translateY(-600px) scale(0.3); opacity:0;} }
-
-.loader-bar-wrap {
-  width: 200px; height: 3px;
-  background: rgba(59,130,246,0.15);
-  border-radius: 99px;
-  overflow: hidden;
-  position: relative; z-index: 1;
-}
-.loader-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--gold));
-  border-radius: 99px;
-  animation: loadFill 5s ease forwards;
-}
-@keyframes loadFill { 0%{width:0%} 100%{width:100%} }
-
-.loader-text {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: var(--text2);
-  text-transform: uppercase;
-  position: relative; z-index: 1;
-  animation: blink 1s step-end infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-/* ── APP SHELL ── */
 #app {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
+  max-width:1000px;
+  margin:0 auto;
+  padding:20px;
 }
 
-/* ── SIDEBAR ── */
-#sidebar {
-  width: 220px;
-  min-width: 220px;
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-.sidebar-glow {
-  position: absolute;
-  top: -60px; left: -60px;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
-  pointer-events: none;
+/* TOP */
+.topbar {
+  display:flex;
+  gap:12px;
+  margin-bottom:20px;
 }
 
-.sidebar-logo {
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-logo .logo-mark {
-  font-family: var(--font-head);
-  font-size: 20px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
-.sidebar-logo .logo-mark span { color: var(--gold); }
-.sidebar-logo .logo-sub {
-  font-size: 9px;
-  letter-spacing: 0.25em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-top: 2px;
+input {
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
 }
 
-.sidebar-section {
-  padding: 14px 12px 6px;
-}
-.sidebar-label {
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: var(--text3);
-  text-transform: uppercase;
-  padding: 0 6px;
-  margin-bottom: 6px;
+/* ALPHABET */
+.alphabet {
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-bottom:16px;
 }
 
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text2);
-  transition: all 0.15s;
-  margin-bottom: 2px;
-  border: 1px solid transparent;
-}
-.nav-item:hover { background: var(--surface); color: var(--text); }
-.nav-item.active {
-  background: rgba(59,130,246,0.12);
-  color: var(--accent2);
-  border-color: rgba(59,130,246,0.2);
-}
-.nav-item .icon { font-size: 14px; width: 18px; text-align: center; }
-.nav-item .badge {
-  margin-left: auto;
-  font-size: 9px;
-  background: var(--accent);
-  color: #fff;
-  padding: 1px 6px;
-  border-radius: 99px;
+.alphabet span {
+  font-size:12px;
+  color:var(--text2);
+  cursor:pointer;
 }
 
-.ats-filter-group { padding: 6px 12px 12px; }
-.ats-btn {
-  display: block; width: 100%;
-  padding: 7px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  color: var(--text2);
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-  margin-bottom: 3px;
-}
-.ats-btn:hover { background: var(--surface); color: var(--text); }
-.ats-btn.active {
-  background: rgba(251,191,36,0.1);
-  border-color: rgba(251,191,36,0.25);
-  color: var(--gold);
+.alphabet span:hover {
+  color:white;
 }
 
-.sidebar-stats {
-  margin-top: auto;
-  padding: 14px;
-  border-top: 1px solid var(--border);
-}
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 10px;
-}
-.stat-label { color: var(--text3); }
-.stat-val { color: var(--gold); font-weight: 700; }
-
-/* ── MAIN ── */
-#main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--bg);
-  position: relative;
+/* LIST */
+.alpha-header {
+  margin-top:20px;
+  font-size:11px;
+  letter-spacing:0.2em;
+  color:var(--text2);
 }
 
-.main-bg {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(59,130,246,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59,130,246,0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
+.company-row {
+  display:flex;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
 }
 
-/* ── TOPBAR ── */
-#topbar {
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: rgba(2,4,9,0.8);
-  backdrop-filter: blur(8px);
-  position: relative; z-index: 10;
-  flex-shrink: 0;
-}
-.topbar-title {
-  font-family: var(--font-head);
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  white-space: nowrap;
-}
-.search-wrap {
-  flex: 1;
-  position: relative;
-  max-width: 400px;
-}
-.search-icon {
-  position: absolute; left: 12px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 13px; color: var(--text3);
-}
-#search {
-  width: 100%;
-  padding: 8px 12px 8px 34px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-}
-#search:focus { border-color: var(--accent); box-shadow: var(--glow); }
-#search::placeholder { color: var(--text3); }
-
-.topbar-actions { display: flex; gap: 8px; margin-left: auto; }
-.btn {
-  padding: 7px 14px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: 1px solid;
-  letter-spacing: 0.05em;
-}
-.btn-ghost {
-  background: transparent;
-  border-color: var(--border2);
-  color: var(--text2);
-}
-.btn-ghost:hover { background: var(--surface); color: var(--text); }
-.btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  box-shadow: var(--glow);
-}
-.btn-primary:hover { background: var(--accent2); box-shadow: 0 0 30px rgba(59,130,246,0.5); }
-.btn-gold {
-  background: transparent;
-  border-color: rgba(251,191,36,0.4);
-  color: var(--gold);
-}
-.btn-gold:hover { background: rgba(251,191,36,0.1); box-shadow: var(--glow-gold); }
-
-/* ── CONTENT AREA ── */
-#content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 20px 24px 80px;
-  position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: var(--surface2) transparent;
+.company-row img {
+  width:28px;
+  height:28px;
+  margin-right:12px;
 }
 
-/* ── VIEWS ── */
-.view { display: none; }
-.view.active { display: block; }
-
-/* ── COMPANY GRID ── */
-.result-meta {
-  font-size: 10px;
-  color: var(--text3);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-.result-meta span { color: var(--accent2); }
-
-.company-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
+.company-meta {
+  flex:1;
 }
 
-.company-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-.company-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.company-card:hover {
-  border-color: var(--border2);
-  background: var(--surface2);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.company-card:hover::before { opacity: 1; }
-
-.card-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.card-logo {
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  object-fit: contain;
-  background: rgba(255,255,255,0.06);
-  padding: 2px;
-}
-.card-logo-fallback {
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-head);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent2);
-  flex-shrink: 0;
-}
-.card-info { flex: 1; min-width: 0; }
-.card-name {
-  font-family: var(--font-head);
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.card-ats {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-top: 1px;
+.company-name {
+  font-weight:600;
 }
 
-.card-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
-.badge {
-  font-size: 8px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-.badge-workday { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
-.badge-greenhouse { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
-.badge-lever { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.2); }
-.badge-icims { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
-.badge-taleo { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
-.badge-other { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.15); }
-.badge-status { font-size: 8px; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em; text-transform: uppercase; }
-.badge-applied { background: rgba(59,130,246,0.15); color: #93c5fd; }
-.badge-interview { background: rgba(251,191,36,0.15); color: var(--gold); }
-.badge-offer { background: rgba(16,185,129,0.15); color: #6ee7b7; }
-.badge-rejected { background: rgba(239,68,68,0.1); color: #fca5a5; }
-.badge-saved { background: rgba(139,92,246,0.15); color: #c4b5fd; }
-
-.card-industry {
-  font-size: 9px;
-  color: var(--text3);
-  margin-bottom: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.company-sub {
+  font-size:11px;
+  color:var(--text2);
 }
 
-.card-actions { display: flex; gap: 6px; }
-.card-btn {
-  flex: 1;
-  padding: 5px 8px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  border-radius: 5px;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text2);
-  transition: all 0.15s;
-  text-align: center;
-  letter-spacing: 0.05em;
-}
-.card-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
-.card-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.card-btn.primary:hover { background: var(--accent2); }
-
-/* ── EMPTY STATE ── */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--text3);
-}
-.empty-state .icon { font-size: 48px; margin-bottom: 16px; filter: grayscale(1) opacity(0.4); }
-.empty-state h3 { font-family: var(--font-head); font-size: 18px; color: var(--text2); margin-bottom: 8px; }
-.empty-state p { font-size: 12px; }
-
-/* ── TRACKER VIEW ── */
-.kanban {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  padding-bottom: 20px;
-  align-items: flex-start;
-}
-.kanban-col {
-  min-width: 240px;
-  max-width: 240px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.kanban-header {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.kanban-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.kanban-count { margin-left: auto; font-size: 10px; color: var(--text3); }
-.kanban-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
-.kanban-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.kanban-card:hover { border-color: var(--border2); transform: translateX(2px); }
-.kanban-card-name { font-weight: 700; color: #fff; margin-bottom: 3px; font-family: var(--font-head); font-size: 12px; }
-.kanban-card-role { color: var(--text2); font-size: 10px; margin-bottom: 6px; }
-.kanban-card-meta { color: var(--text3); font-size: 9px; display: flex; align-items: center; gap: 6px; }
-
-/* ── NOTES VIEW ── */
-.notes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-.note-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-}
-.note-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.note-logo { width: 28px; height: 28px; border-radius: 6px; object-fit: contain; background: rgba(255,255,255,0.06); padding: 2px; }
-.note-company { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: #fff; }
-.note-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
-.tag {
-  font-size: 9px;
-  padding: 2px 8px;
-  border-radius: 99px;
-  background: rgba(99,179,255,0.1);
-  border: 1px solid rgba(99,179,255,0.2);
-  color: var(--accent2);
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: all 0.1s;
-}
-.tag:hover { background: rgba(99,179,255,0.2); }
-.note-text {
-  font-size: 11px;
-  color: var(--text2);
-  line-height: 1.6;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px;
-  min-height: 60px;
-  width: 100%;
-  font-family: var(--font-mono);
-  resize: vertical;
-  outline: none;
-  color: var(--text);
-}
-.note-text:focus { border-color: var(--accent); }
-
-/* ── RESUME VIEW ── */
-.resume-zone {
-  border: 2px dashed var(--border2);
-  border-radius: 16px;
-  padding: 60px 40px;
-  text-align: center;
-  transition: all 0.2s;
-  cursor: pointer;
-  margin-bottom: 24px;
-}
-.resume-zone:hover, .resume-zone.drag-over {
-  border-color: var(--accent);
-  background: rgba(59,130,246,0.05);
-  box-shadow: var(--glow);
-}
-.resume-zone .upload-icon { font-size: 48px; margin-bottom: 16px; }
-.resume-zone h3 { font-family: var(--font-head); font-size: 18px; margin-bottom: 8px; }
-.resume-zone p { font-size: 11px; color: var(--text3); margin-bottom: 20px; }
-
-.resume-list { display: flex; flex-direction: column; gap: 8px; }
-.resume-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.resume-icon { font-size: 24px; flex-shrink: 0; }
-.resume-name { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-.resume-meta { font-size: 10px; color: var(--text3); }
-.resume-actions { margin-left: auto; display: flex; gap: 6px; }
-.progress-bar-wrap { height: 3px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; margin-top: 4px; }
-.progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 99px; }
-
-/* ── JOBS VIEW ── */
-.jobs-filters {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-}
-.job-filter-btn {
-  padding: 6px 14px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text2);
-  transition: all 0.15s;
-  letter-spacing: 0.05em;
-}
-.job-filter-btn:hover { background: var(--surface); color: var(--text); }
-.job-filter-btn.active { background: rgba(59,130,246,0.12); border-color: var(--accent); color: var(--accent2); }
-
-.jobs-list { display: flex; flex-direction: column; gap: 8px; }
-.job-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.job-card:hover { border-color: var(--border2); background: var(--surface2); }
-.job-logo { width: 40px; height: 40px; border-radius: 10px; object-fit: contain; background: rgba(255,255,255,0.06); padding: 3px; flex-shrink: 0; }
-.job-logo-fallback { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--accent2); flex-shrink: 0; }
-.job-body { flex: 1; min-width: 0; }
-.job-role { font-family: var(--font-head); font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
-.job-company { font-size: 11px; color: var(--accent2); margin-bottom: 4px; }
-.job-meta { font-size: 10px; color: var(--text3); display: flex; gap: 12px; flex-wrap: wrap; }
-.job-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-.job-salary { font-size: 12px; color: var(--green); font-weight: 700; }
-.job-remote { font-size: 9px; padding: 2px 8px; border-radius: 4px; background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); letter-spacing: 0.05em; text-transform: uppercase; }
-
-/* ── MODAL ── */
-#modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(2,4,9,0.85);
-  backdrop-filter: blur(6px);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-#modal-overlay.open { display: flex; }
-#modal {
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 16px;
-  padding: 28px;
-  max-width: 500px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6), var(--glow);
-}
-.modal-close {
-  position: absolute; top: 16px; right: 16px;
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text2);
-  font-size: 14px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-}
-.modal-close:hover { background: var(--surface2); color: var(--text); }
-.modal-header { margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
-.modal-logo { width: 48px; height: 48px; border-radius: 12px; object-fit: contain; background: rgba(255,255,255,0.06); padding: 4px; }
-.modal-logo-fb { width: 48px; height: 48px; border-radius: 12px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--accent2); }
-.modal-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: #fff; }
-.modal-subtitle { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.modal-section { margin-bottom: 18px; }
-.modal-section-title { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
-.modal-row { display: flex; gap: 8px; margin-bottom: 8px; }
-.modal-field {
-  flex: 1;
-  padding: 9px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-}
-.modal-field:focus { border-color: var(--accent); }
-select.modal-field { cursor: pointer; }
-.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
-
-/* ── TICKER ── */
-#ticker {
-  position: fixed;
-  bottom: 0; left: 220px; right: 0;
-  height: 36px;
-  background: rgba(7,13,26,0.95);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  z-index: 100;
-}
-.ticker-label {
-  padding: 0 14px;
-  font-size: 8px;
-  letter-spacing: 0.2em;
-  color: var(--text3);
-  text-transform: uppercase;
-  white-space: nowrap;
-  border-right: 1px solid var(--border);
-  height: 100%;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-.ticker-scroll {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-}
-.ticker-track {
-  display: flex;
-  gap: 36px;
-  animation: scrollTicker 180s linear infinite;
-  white-space: nowrap;
-}
-.ticker-track:hover { animation-play-state: paused; }
-@keyframes scrollTicker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-.ticker-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  color: var(--text2);
-  cursor: pointer;
-  transition: color 0.1s;
-  flex-shrink: 0;
-}
-.ticker-item:hover { color: var(--gold); }
-.ticker-item img { width: 14px; height: 14px; object-fit: contain; border-radius: 3px; }
-.ticker-sep { color: var(--border2); }
-
-/* ── SECTION HEADER ── */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-.section-title {
-  font-family: var(--font-head);
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-}
-.section-subtitle {
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 2px;
-  letter-spacing: 0.1em;
+.company-actions button {
+  margin-left:8px;
+  padding:6px 10px;
+  border-radius:6px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  cursor:pointer;
 }
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 99px; }
-
-/* ── TOAST ── */
-#toast {
-  position: fixed;
-  bottom: 54px; right: 20px;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 12px;
-  color: var(--text);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  z-index: 2000;
-  transform: translateY(20px);
-  opacity: 0;
-  transition: all 0.3s;
-  pointer-events: none;
+.company-actions button.primary {
+  background:var(--accent);
+  border-color:var(--accent);
+  color:white;
 }
-#toast.show { transform: translateY(0); opacity: 1; }
-
-/* STAR */
-.star-btn {
-  background: none; border: none; cursor: pointer;
-  font-size: 14px; color: var(--text3);
-  transition: all 0.15s;
-  padding: 4px;
-  border-radius: 4px;
-  line-height: 1;
-}
-.star-btn:hover { color: var(--gold); transform: scale(1.2); }
-.star-btn.starred { color: var(--gold); }
 </style>
 </head>
+
 <body>
 
-<!-- CURSOR -->
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
-
-<!-- LOADER -->
-<div id="loader">
-  <div class="loader-grid"></div>
-  <div class="loader-rocket" id="loaderRocket">🚀</div>
-  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
-  <div class="loader-text" id="loaderText">Initializing ATS Navigator...</div>
-</div>
-
-<!-- APP -->
 <div id="app">
 
-  <!-- SIDEBAR -->
-  <div id="sidebar">
-    <div class="sidebar-glow"></div>
-    <div class="sidebar-logo">
-      <div class="logo-mark">Launch<span>Pad</span></div>
-      <div class="logo-sub">ATS Navigator v2.0</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Navigate</div>
-      <div class="nav-item active" onclick="switchView('companies')" id="nav-companies">
-        <span class="icon">⬡</span> Companies
-        <span class="badge" id="badge-companies">0</span>
-      </div>
-      <div class="nav-item" onclick="switchView('tracker')" id="nav-tracker">
-        <span class="icon">◈</span> Tracker
-      </div>
-      <div class="nav-item" onclick="switchView('jobs')" id="nav-jobs">
-        <span class="icon">◉</span> Job Board
-      </div>
-      <div class="nav-item" onclick="switchView('notes')" id="nav-notes">
-        <span class="icon">◫</span> Notes
-      </div>
-      <div class="nav-item" onclick="switchView('resume')" id="nav-resume">
-        <span class="icon">◧</span> Resume
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Filter ATS</div>
-      <div class="ats-filter-group">
-        <button class="ats-btn active" onclick="setATS('')">All Systems</button>
-        <button class="ats-btn" onclick="setATS('Workday')">⬡ Workday</button>
-        <button class="ats-btn" onclick="setATS('Greenhouse')">⬡ Greenhouse</button>
-        <button class="ats-btn" onclick="setATS('Lever')">⬡ Lever</button>
-        <button class="ats-btn" onclick="setATS('iCIMS')">⬡ iCIMS</button>
-        <button class="ats-btn" onclick="setATS('Taleo')">⬡ Taleo</button>
-        <button class="ats-btn" onclick="setATS('Other')">⬡ Other</button>
-      </div>
-    </div>
-
-    <div class="sidebar-stats">
-      <div class="stat-row"><span class="stat-label">Companies</span><span class="stat-val" id="stat-total">0</span></div>
-      <div class="stat-row"><span class="stat-label">Applied</span><span class="stat-val" id="stat-applied">0</span></div>
-      <div class="stat-row"><span class="stat-label">Interviews</span><span class="stat-val" id="stat-interviews">0</span></div>
-      <div class="stat-row"><span class="stat-label">Saved</span><span class="stat-val" id="stat-saved">0</span></div>
-    </div>
+  <div class="topbar">
+    <input id="search" placeholder="Search companies..." oninput="render()">
   </div>
 
-  <!-- MAIN -->
-  <div id="main">
-    <div class="main-bg"></div>
+  <div class="alphabet" id="alphabet"></div>
 
-    <!-- TOPBAR -->
-    <div id="topbar">
-      <div class="topbar-title" id="topbar-title">Company Directory</div>
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span>
-        <input id="search" type="text" placeholder="Search companies, industries..." oninput="renderCompanies()">
-      </div>
-      <div class="topbar-actions">
-        <button class="btn btn-ghost" onclick="switchView('resume')">+ Upload Resume</button>
-        <button class="btn btn-gold" onclick="openTrackModal(null)">+ Track Application</button>
-        <button class="btn btn-primary" onclick="openJobSite()">Open Careers ↗</button>
-      </div>
-    </div>
+  <div id="list"></div>
 
-    <!-- CONTENT -->
-    <div id="content">
-
-      <!-- COMPANIES VIEW -->
-      <div class="view active" id="view-companies">
-        <div class="result-meta">Showing <span id="result-count">0</span> companies</div>
-        <div class="company-grid" id="grid"></div>
-        <div class="empty-state" id="empty-state" style="display:none">
-          <div class="icon">🔍</div>
-          <h3>No companies found</h3>
-          <p>Try a different search term or ATS filter</p>
-        </div>
-      </div>
-
-      <!-- TRACKER VIEW -->
-      <div class="view" id="view-tracker">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Application Tracker</div>
-            <div class="section-subtitle">Drag or update your application status</div>
-          </div>
-          <button class="btn btn-primary" onclick="openTrackModal(null)">+ Add Application</button>
-        </div>
-        <div class="kanban" id="kanban"></div>
-      </div>
-
-      <!-- JOBS VIEW -->
-      <div class="view" id="view-jobs">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Job Board</div>
-            <div class="section-subtitle">Curated openings from top companies</div>
-          </div>
-        </div>
-        <div class="jobs-filters" id="jobs-filters"></div>
-        <div class="jobs-list" id="jobs-list"></div>
-      </div>
-
-      <!-- NOTES VIEW -->
-      <div class="view" id="view-notes">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Company Notes</div>
-            <div class="section-subtitle">Tags, research, interview prep</div>
-          </div>
-          <button class="btn btn-ghost" onclick="renderNotes()">Refresh</button>
-        </div>
-        <div class="notes-grid" id="notes-grid"></div>
-      </div>
-
-      <!-- RESUME VIEW -->
-      <div class="view" id="view-resume">
-        <div class="section-header">
-          <div>
-            <div class="section-title">Resume Manager</div>
-            <div class="section-subtitle">Upload and manage your resume versions</div>
-          </div>
-        </div>
-        <div class="resume-zone" id="resume-zone" onclick="document.getElementById('fileInput').click()">
-          <div class="upload-icon">📄</div>
-          <h3>Drop your resume here</h3>
-          <p>PDF, DOCX, or TXT — up to 5 files</p>
-          <button class="btn btn-primary" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Browse Files</button>
-        </div>
-        <input type="file" id="fileInput" style="display:none" accept=".pdf,.docx,.txt" multiple onchange="handleFileUpload(this)">
-        <div class="resume-list" id="resume-list"></div>
-      </div>
-
-    </div>
-  </div>
 </div>
-
-<!-- TICKER -->
-<div id="ticker">
-  <div class="ticker-label">Live ATS</div>
-  <div class="ticker-scroll">
-    <div class="ticker-track" id="tickerTrack"></div>
-  </div>
-</div>
-
-<!-- MODAL -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div id="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div id="modal-content"></div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════
-// DATA — 200+ Companies
-// ═══════════════════════════════════════
+
+// SAMPLE DATA (your full dataset still works)
 const companies = [
-  // WORKDAY
-  {name:"Apple",domain:"apple.com",ats:"Workday",url:"https://jobs.apple.com",industry:"Consumer Tech",hq:"Cupertino, CA"},
-  {name:"Amazon",domain:"amazon.com",ats:"Workday",url:"https://amazon.jobs",industry:"E-commerce / Cloud",hq:"Seattle, WA"},
-  {name:"Microsoft",domain:"microsoft.com",ats:"Workday",url:"https://careers.microsoft.com",industry:"Enterprise Software",hq:"Redmond, WA"},
-  {name:"Adobe",domain:"adobe.com",ats:"Workday",url:"https://adobe.wd5.myworkdayjobs.com",industry:"Creative Software",hq:"San Jose, CA"},
-  {name:"Walmart",domain:"walmart.com",ats:"Workday",url:"https://walmart.wd5.myworkdayjobs.com",industry:"Retail",hq:"Bentonville, AR"},
-  {name:"Target",domain:"target.com",ats:"Workday",url:"https://target.wd5.myworkdayjobs.com",industry:"Retail",hq:"Minneapolis, MN"},
-  {name:"Cisco",domain:"cisco.com",ats:"Workday",url:"https://cisco.wd1.myworkdayjobs.com",industry:"Networking",hq:"San Jose, CA"},
-  {name:"Intel",domain:"intel.com",ats:"Workday",url:"https://intel.wd1.myworkdayjobs.com",industry:"Semiconductors",hq:"Santa Clara, CA"},
-  {name:"IBM",domain:"ibm.com",ats:"Workday",url:"https://ibm.wd1.myworkdayjobs.com",industry:"Enterprise Tech",hq:"Armonk, NY"},
-  {name:"Oracle",domain:"oracle.com",ats:"Workday",url:"https://oracle.wd1.myworkdayjobs.com",industry:"Enterprise Software",hq:"Austin, TX"},
-  {name:"Nike",domain:"nike.com",ats:"Workday",url:"https://nike.wd5.myworkdayjobs.com",industry:"Apparel / Sports",hq:"Beaverton, OR"},
-  {name:"Deloitte",domain:"deloitte.com",ats:"Workday",url:"https://deloitte.wd5.myworkdayjobs.com",industry:"Consulting",hq:"New York, NY"},
-  {name:"PwC",domain:"pwc.com",ats:"Workday",url:"https://pwc.wd3.myworkdayjobs.com",industry:"Consulting",hq:"New York, NY"},
-  {name:"Accenture",domain:"accenture.com",ats:"Workday",url:"https://accenture.wd3.myworkdayjobs.com",industry:"Consulting / IT",hq:"Dublin, Ireland"},
-  {name:"JPMorgan Chase",domain:"jpmorganchase.com",ats:"Workday",url:"https://jpmc.fa.oraclecloud.com",industry:"Finance",hq:"New York, NY"},
-  {name:"Goldman Sachs",domain:"goldmansachs.com",ats:"Workday",url:"https://goldmansachs.wd5.myworkdayjobs.com",industry:"Finance",hq:"New York, NY"},
-  {name:"Bank of America",domain:"bankofamerica.com",ats:"Workday",url:"https://bofa.wd1.myworkdayjobs.com",industry:"Finance",hq:"Charlotte, NC"},
-  {name:"Wells Fargo",domain:"wellsfargo.com",ats:"Workday",url:"https://wellsfargo.wd5.myworkdayjobs.com",industry:"Finance",hq:"San Francisco, CA"},
-  {name:"Citi",domain:"citi.com",ats:"Workday",url:"https://citi.wd5.myworkdayjobs.com",industry:"Finance",hq:"New York, NY"},
-  {name:"Morgan Stanley",domain:"morganstanley.com",ats:"Workday",url:"https://morganstanley.wd5.myworkdayjobs.com",industry:"Finance",hq:"New York, NY"},
-  {name:"Johnson & Johnson",domain:"jnj.com",ats:"Workday",url:"https://jobs.jnj.com",industry:"Healthcare",hq:"New Brunswick, NJ"},
-  {name:"Pfizer",domain:"pfizer.com",ats:"Workday",url:"https://pfizer.wd1.myworkdayjobs.com",industry:"Pharma",hq:"New York, NY"},
-  {name:"Merck",domain:"merck.com",ats:"Workday",url:"https://merck.wd5.myworkdayjobs.com",industry:"Pharma",hq:"Rahway, NJ"},
-  {name:"UnitedHealth Group",domain:"unitedhealthgroup.com",ats:"Workday",url:"https://uhg.hr/careers",industry:"Healthcare",hq:"Minnetonka, MN"},
-  {name:"CVS Health",domain:"cvshealth.com",ats:"Workday",url:"https://jobs.cvshealth.com",industry:"Healthcare / Retail",hq:"Woonsocket, RI"},
-  {name:"Lockheed Martin",domain:"lockheedmartin.com",ats:"Workday",url:"https://lmco.wd5.myworkdayjobs.com",industry:"Defense / Aerospace",hq:"Bethesda, MD"},
-  {name:"Raytheon",domain:"rtx.com",ats:"Workday",url:"https://careers.rtx.com",industry:"Defense / Aerospace",hq:"Waltham, MA"},
-  {name:"Boeing",domain:"boeing.com",ats:"Workday",url:"https://boeing.wd1.myworkdayjobs.com",industry:"Aerospace",hq:"Arlington, VA"},
-  {name:"General Motors",domain:"gm.com",ats:"Workday",url:"https://search-careers.gm.com",industry:"Automotive",hq:"Detroit, MI"},
-  {name:"Ford",domain:"ford.com",ats:"Workday",url:"https://ford.wd12.myworkdayjobs.com",industry:"Automotive",hq:"Dearborn, MI"},
-  {name:"Caterpillar",domain:"caterpillar.com",ats:"Workday",url:"https://caterpillar.wd5.myworkdayjobs.com",industry:"Manufacturing",hq:"Irving, TX"},
-  {name:"3M",domain:"3m.com",ats:"Workday",url:"https://3m.wd1.myworkdayjobs.com",industry:"Industrial / Consumer",hq:"Saint Paul, MN"},
-  {name:"Honeywell",domain:"honeywell.com",ats:"Workday",url:"https://honeywell.jobs",industry:"Industrial Tech",hq:"Charlotte, NC"},
-  {name:"GE",domain:"ge.com",ats:"Workday",url:"https://ge.wd5.myworkdayjobs.com",industry:"Industrial / Energy",hq:"Boston, MA"},
-  {name:"Verizon",domain:"verizon.com",ats:"Workday",url:"https://verizon.wd5.myworkdayjobs.com",industry:"Telecom",hq:"New York, NY"},
-  {name:"AT&T",domain:"att.com",ats:"Workday",url:"https://att.jobs",industry:"Telecom",hq:"Dallas, TX"},
-  {name:"T-Mobile",domain:"t-mobile.com",ats:"Workday",url:"https://tmobile.wd5.myworkdayjobs.com",industry:"Telecom",hq:"Bellevue, WA"},
-  {name:"Comcast",domain:"comcast.com",ats:"Workday",url:"https://jobs.comcast.com",industry:"Media / Telecom",hq:"Philadelphia, PA"},
-  {name:"Walt Disney",domain:"disney.com",ats:"Workday",url:"https://jobs.disneycareers.com",industry:"Entertainment",hq:"Burbank, CA"},
-  {name:"Netflix",domain:"netflix.com",ats:"Workday",url:"https://jobs.netflix.com",industry:"Streaming",hq:"Los Gatos, CA"},
-  {name:"PayPal",domain:"paypal.com",ats:"Workday",url:"https://paypal.wd1.myworkdayjobs.com",industry:"Fintech",hq:"San Jose, CA"},
-  {name:"Salesforce",domain:"salesforce.com",ats:"Workday",url:"https://salesforce.wd12.myworkdayjobs.com",industry:"CRM / SaaS",hq:"San Francisco, CA"},
-  {name:"ServiceNow",domain:"servicenow.com",ats:"Workday",url:"https://servicenow.wd5.myworkdayjobs.com",industry:"Enterprise SaaS",hq:"Santa Clara, CA"},
-  {name:"Workday",domain:"workday.com",ats:"Workday",url:"https://workday.wd5.myworkdayjobs.com",industry:"HR / Finance SaaS",hq:"Pleasanton, CA"},
-  {name:"SAP",domain:"sap.com",ats:"Workday",url:"https://sap.wd3.myworkdayjobs.com",industry:"Enterprise Software",hq:"Walldorf, Germany"},
-  {name:"HP Inc",domain:"hp.com",ats:"Workday",url:"https://hp.wd5.myworkdayjobs.com",industry:"Hardware",hq:"Palo Alto, CA"},
-  {name:"Dell",domain:"dell.com",ats:"Workday",url:"https://dell.wd1.myworkdayjobs.com",industry:"Hardware / Cloud",hq:"Round Rock, TX"},
-  {name:"Qualcomm",domain:"qualcomm.com",ats:"Workday",url:"https://qualcomm.wd5.myworkdayjobs.com",industry:"Semiconductors",hq:"San Diego, CA"},
-  {name:"Broadcom",domain:"broadcom.com",ats:"Workday",url:"https://broadcom.wd5.myworkdayjobs.com",industry:"Semiconductors",hq:"San Jose, CA"},
-  {name:"Texas Instruments",domain:"ti.com",ats:"Workday",url:"https://ti.wd1.myworkdayjobs.com",industry:"Semiconductors",hq:"Dallas, TX"},
-  {name:"Micron",domain:"micron.com",ats:"Workday",url:"https://micron.wd1.myworkdayjobs.com",industry:"Semiconductors",hq:"Boise, ID"},
-  {name:"Western Digital",domain:"westerndigital.com",ats:"Workday",url:"https://wdc.wd1.myworkdayjobs.com",industry:"Storage / Hardware",hq:"San Jose, CA"},
-  {name:"Lowe's",domain:"lowes.com",ats:"Workday",url:"https://lowes.wd5.myworkdayjobs.com",industry:"Retail / Home",hq:"Mooresville, NC"},
-  {name:"Home Depot",domain:"homedepot.com",ats:"Workday",url:"https://careers.homedepot.com",industry:"Retail / Home",hq:"Atlanta, GA"},
-  {name:"Costco",domain:"costco.com",ats:"Workday",url:"https://www.costco.com/jobs.html",industry:"Retail",hq:"Issaquah, WA"},
-  {name:"Starbucks",domain:"starbucks.com",ats:"Workday",url:"https://starbucks.wd5.myworkdayjobs.com",industry:"Food & Beverage",hq:"Seattle, WA"},
-  {name:"McDonald's",domain:"mcdonalds.com",ats:"Workday",url:"https://mcdonalds.wd5.myworkdayjobs.com",industry:"Food & Beverage",hq:"Chicago, IL"},
-  {name:"Marriott",domain:"marriott.com",ats:"Workday",url:"https://jobs.marriott.com",industry:"Hospitality",hq:"Bethesda, MD"},
-  {name:"Hilton",domain:"hilton.com",ats:"Workday",url:"https://hilton.wd5.myworkdayjobs.com",industry:"Hospitality",hq:"McLean, VA"},
-  {name:"FedEx",domain:"fedex.com",ats:"Workday",url:"https://careers.fedex.com",industry:"Logistics",hq:"Memphis, TN"},
-  {name:"UPS",domain:"ups.com",ats:"Workday",url:"https://www.jobs-ups.com",industry:"Logistics",hq:"Atlanta, GA"},
-  {name:"Uber",domain:"uber.com",ats:"Workday",url:"https://uber.wd5.myworkdayjobs.com",industry:"Mobility / Tech",hq:"San Francisco, CA"},
-  {name:"Lyft",domain:"lyft.com",ats:"Workday",url:"https://lyft.wd5.myworkdayjobs.com",industry:"Mobility / Tech",hq:"San Francisco, CA"},
-  {name:"Airbnb",domain:"airbnb.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/airbnb",industry:"Travel / Tech",hq:"San Francisco, CA"},
-  {name:"Capital One",domain:"capitalone.com",ats:"Workday",url:"https://capitalone.wd1.myworkdayjobs.com",industry:"Finance",hq:"McLean, VA"},
-  {name:"American Express",domain:"americanexpress.com",ats:"Workday",url:"https://aexp.wd5.myworkdayjobs.com",industry:"Finance",hq:"New York, NY"},
-  {name:"Visa",domain:"visa.com",ats:"Workday",url:"https://visa.wd5.myworkdayjobs.com",industry:"Fintech",hq:"Foster City, CA"},
-  {name:"Mastercard",domain:"mastercard.com",ats:"Workday",url:"https://mastercard.wd1.myworkdayjobs.com",industry:"Fintech",hq:"Purchase, NY"},
-  {name:"Charles Schwab",domain:"schwab.com",ats:"Workday",url:"https://schwab.wd5.myworkdayjobs.com",industry:"Finance",hq:"Westlake, TX"},
-  {name:"Fidelity",domain:"fidelity.com",ats:"Workday",url:"https://jobs.fidelity.com",industry:"Finance",hq:"Boston, MA"},
-  {name:"Anthem",domain:"anthem.com",ats:"Workday",url:"https://anthem.wd5.myworkdayjobs.com",industry:"Healthcare",hq:"Indianapolis, IN"},
-  {name:"Aetna",domain:"aetna.com",ats:"Workday",url:"https://aetna.wd5.myworkdayjobs.com",industry:"Healthcare",hq:"Hartford, CT"},
-  {name:"Humana",domain:"humana.com",ats:"Workday",url:"https://careers.humana.com",industry:"Healthcare",hq:"Louisville, KY"},
-  {name:"Northrop Grumman",domain:"northropgrumman.com",ats:"Workday",url:"https://ngc.wd5.myworkdayjobs.com",industry:"Defense",hq:"Falls Church, VA"},
-  {name:"General Dynamics",domain:"gd.com",ats:"Taleo",url:"https://generaldynamics.wd5.myworkdayjobs.com",industry:"Defense",hq:"Reston, VA"},
-  {name:"L3Harris",domain:"l3harris.com",ats:"Workday",url:"https://l3harris.wd5.myworkdayjobs.com",industry:"Defense",hq:"Melbourne, FL"},
-  {name:"Booz Allen Hamilton",domain:"boozallen.com",ats:"Workday",url:"https://boozallen.wd5.myworkdayjobs.com",industry:"Consulting / Defense",hq:"McLean, VA"},
-  {name:"KPMG",domain:"kpmg.com",ats:"Workday",url:"https://kpmg.wd5.myworkdayjobs.com",industry:"Consulting",hq:"New York, NY"},
-  {name:"EY",domain:"ey.com",ats:"Workday",url:"https://careers.ey.com",industry:"Consulting",hq:"London, UK"},
-  {name:"McKinsey",domain:"mckinsey.com",ats:"Workday",url:"https://www.mckinsey.com/careers",industry:"Consulting",hq:"New York, NY"},
-  {name:"BCG",domain:"bcg.com",ats:"Workday",url:"https://careers.bcg.com",industry:"Consulting",hq:"Boston, MA"},
-  {name:"Bain",domain:"bain.com",ats:"Workday",url:"https://bain.wd5.myworkdayjobs.com",industry:"Consulting",hq:"Boston, MA"},
-  {name:"Procter & Gamble",domain:"pg.com",ats:"Workday",url:"https://pg.wd5.myworkdayjobs.com",industry:"Consumer Goods",hq:"Cincinnati, OH"},
-  {name:"Unilever",domain:"unilever.com",ats:"Workday",url:"https://unilever.wd3.myworkdayjobs.com",industry:"Consumer Goods",hq:"London, UK"},
-  {name:"Colgate-Palmolive",domain:"colgatepalmolive.com",ats:"Workday",url:"https://colgatepalmolive.wd1.myworkdayjobs.com",industry:"Consumer Goods",hq:"New York, NY"},
-  {name:"Kraft Heinz",domain:"kraftheinzcompany.com",ats:"Workday",url:"https://careers.kraftheinz.com",industry:"Food & Beverage",hq:"Chicago, IL"},
-  {name:"Mondelez",domain:"mondelezinternational.com",ats:"Workday",url:"https://mondelezinternational.wd3.myworkdayjobs.com",industry:"Food & Beverage",hq:"Chicago, IL"},
-  {name:"PepsiCo",domain:"pepsico.com",ats:"Workday",url:"https://pepsicojobs.com",industry:"Food & Beverage",hq:"Purchase, NY"},
-  {name:"Coca-Cola",domain:"coca-cola.com",ats:"Workday",url:"https://coke.wd5.myworkdayjobs.com",industry:"Food & Beverage",hq:"Atlanta, GA"},
-  {name:"Estee Lauder",domain:"esteelauder.com",ats:"Workday",url:"https://elcompanies.wd5.myworkdayjobs.com",industry:"Beauty / Consumer",hq:"New York, NY"},
-  {name:"L'Oreal",domain:"loreal.com",ats:"Workday",url:"https://careers.loreal.com",industry:"Beauty",hq:"Clichy, France"},
-  {name:"AbbVie",domain:"abbvie.com",ats:"Workday",url:"https://abbvie.wd1.myworkdayjobs.com",industry:"Pharma / Biotech",hq:"North Chicago, IL"},
-  {name:"Bristol Myers Squibb",domain:"bms.com",ats:"Workday",url:"https://bms.wd5.myworkdayjobs.com",industry:"Pharma",hq:"New York, NY"},
-  {name:"Eli Lilly",domain:"lilly.com",ats:"Workday",url:"https://lilly.wd5.myworkdayjobs.com",industry:"Pharma",hq:"Indianapolis, IN"},
-  {name:"Abbott",domain:"abbott.com",ats:"Workday",url:"https://abbott.wd5.myworkdayjobs.com",industry:"Healthcare / Medical",hq:"Abbott Park, IL"},
-  {name:"Medtronic",domain:"medtronic.com",ats:"Workday",url:"https://medtronic.wd5.myworkdayjobs.com",industry:"Medical Devices",hq:"Dublin, Ireland"},
-  {name:"Becton Dickinson",domain:"bd.com",ats:"Workday",url:"https://jobs.bd.com",industry:"Medical Devices",hq:"Franklin Lakes, NJ"},
-  {name:"Stryker",domain:"stryker.com",ats:"Workday",url:"https://careers.stryker.com",industry:"Medical Devices",hq:"Kalamazoo, MI"},
-  {name:"Zimmer Biomet",domain:"zimmerbiomet.com",ats:"Workday",url:"https://zimmerbiomet.wd5.myworkdayjobs.com",industry:"Medical Devices",hq:"Warsaw, IN"},
-
-  // GREENHOUSE
-  {name:"Stripe",domain:"stripe.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/stripe",industry:"Fintech / Payments",hq:"San Francisco, CA"},
-  {name:"HubSpot",domain:"hubspot.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/hubspot",industry:"Marketing SaaS",hq:"Cambridge, MA"},
-  {name:"Dropbox",domain:"dropbox.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/dropbox",industry:"Cloud Storage",hq:"San Francisco, CA"},
-  {name:"Twilio",domain:"twilio.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/twilio",industry:"Communications / API",hq:"San Francisco, CA"},
-  {name:"Zendesk",domain:"zendesk.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/zendesk",industry:"Customer Support SaaS",hq:"San Francisco, CA"},
-  {name:"Asana",domain:"asana.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/asana",industry:"Productivity SaaS",hq:"San Francisco, CA"},
-  {name:"Brex",domain:"brex.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/brex",industry:"Fintech",hq:"San Francisco, CA"},
-  {name:"Rippling",domain:"rippling.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/rippling",industry:"HR / Payroll Tech",hq:"San Francisco, CA"},
-  {name:"Gusto",domain:"gusto.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/gusto",industry:"HR / Payroll Tech",hq:"San Francisco, CA"},
-  {name:"Airtable",domain:"airtable.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/airtable",industry:"No-Code / Productivity",hq:"San Francisco, CA"},
-  {name:"Plaid",domain:"plaid.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/plaid",industry:"Fintech / API",hq:"San Francisco, CA"},
-  {name:"Robinhood",domain:"robinhood.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/robinhood",industry:"Fintech",hq:"Menlo Park, CA"},
-  {name:"Chime",domain:"chime.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/chime",industry:"Neobank",hq:"San Francisco, CA"},
-  {name:"Affirm",domain:"affirm.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/affirm",industry:"Fintech / BNPL",hq:"San Francisco, CA"},
-  {name:"Instacart",domain:"instacart.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/instacart",industry:"Grocery / Tech",hq:"San Francisco, CA"},
-  {name:"DoorDash",domain:"doordash.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/doordash",industry:"Food Delivery",hq:"San Francisco, CA"},
-  {name:"Grammarly",domain:"grammarly.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/grammarly",industry:"AI / Productivity",hq:"San Francisco, CA"},
-  {name:"Duolingo",domain:"duolingo.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/duolingo",industry:"EdTech",hq:"Pittsburgh, PA"},
-  {name:"Coursera",domain:"coursera.org",ats:"Greenhouse",url:"https://boards.greenhouse.io/coursera",industry:"EdTech",hq:"Mountain View, CA"},
-  {name:"Cvent",domain:"cvent.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/cvent",industry:"Event Tech",hq:"McLean, VA"},
-  {name:"Pendo",domain:"pendo.io",ats:"Greenhouse",url:"https://boards.greenhouse.io/pendo",industry:"Product Analytics",hq:"Raleigh, NC"},
-  {name:"Benchling",domain:"benchling.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/benchling",industry:"Life Sciences SaaS",hq:"San Francisco, CA"},
-  {name:"Headspace",domain:"headspace.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/headspace",industry:"Wellness Tech",hq:"Santa Monica, CA"},
-  {name:"Calm",domain:"calm.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/calm",industry:"Wellness Tech",hq:"San Francisco, CA"},
-  {name:"Peloton",domain:"onepeloton.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/peloton",industry:"Fitness Tech",hq:"New York, NY"},
-  {name:"Noom",domain:"noom.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/noom",industry:"Health Tech",hq:"New York, NY"},
-  {name:"Databricks",domain:"databricks.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/databricks",industry:"Data / AI Platform",hq:"San Francisco, CA"},
-  {name:"Snowflake",domain:"snowflake.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/snowflake",industry:"Cloud Data",hq:"Bozeman, MT"},
-  {name:"Confluent",domain:"confluent.io",ats:"Greenhouse",url:"https://boards.greenhouse.io/confluent",industry:"Data Streaming",hq:"Mountain View, CA"},
-  {name:"HashiCorp",domain:"hashicorp.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/hashicorp",industry:"DevOps / Cloud",hq:"San Francisco, CA"},
-  {name:"PagerDuty",domain:"pagerduty.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/pagerduty",industry:"IT Operations SaaS",hq:"San Francisco, CA"},
-  {name:"Datadog",domain:"datadoghq.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/datadog",industry:"Observability",hq:"New York, NY"},
-  {name:"New Relic",domain:"newrelic.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/newrelic",industry:"Observability",hq:"San Francisco, CA"},
-  {name:"Okta",domain:"okta.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/okta",industry:"Identity / Security",hq:"San Francisco, CA"},
-  {name:"CrowdStrike",domain:"crowdstrike.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/crowdstrike",industry:"Cybersecurity",hq:"Sunnyvale, CA"},
-  {name:"Palo Alto Networks",domain:"paloaltonetworks.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/paloaltonetworks",industry:"Cybersecurity",hq:"Santa Clara, CA"},
-  {name:"SentinelOne",domain:"sentinelone.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/sentinelone",industry:"Cybersecurity",hq:"Mountain View, CA"},
-  {name:"Cloudflare",domain:"cloudflare.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/cloudflare",industry:"Network / Security",hq:"San Francisco, CA"},
-  {name:"Fastly",domain:"fastly.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/fastly",industry:"CDN / Edge",hq:"San Francisco, CA"},
-  {name:"Klaviyo",domain:"klaviyo.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/klaviyo",industry:"Email / Marketing SaaS",hq:"Boston, MA"},
-  {name:"Mailchimp",domain:"mailchimp.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/mailchimp",industry:"Email Marketing",hq:"Atlanta, GA"},
-  {name:"Intercom",domain:"intercom.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/intercom",industry:"Customer Success SaaS",hq:"San Francisco, CA"},
-  {name:"Loom",domain:"loom.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/loom",industry:"Video / Productivity",hq:"San Francisco, CA"},
-  {name:"Zapier",domain:"zapier.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/zapier",industry:"Automation / No-Code",hq:"Remote"},
-  {name:"Monday.com",domain:"monday.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/mondaycom",industry:"Project Management SaaS",hq:"Tel Aviv, Israel"},
-  {name:"Wix",domain:"wix.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/wix",industry:"Web Builder",hq:"Tel Aviv, Israel"},
-  {name:"Squarespace",domain:"squarespace.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/squarespace",industry:"Web Builder",hq:"New York, NY"},
-  {name:"Shopify",domain:"shopify.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/shopify",industry:"E-commerce",hq:"Ottawa, Canada"},
-  {name:"BigCommerce",domain:"bigcommerce.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/bigcommerce",industry:"E-commerce SaaS",hq:"Austin, TX"},
-  {name:"Klaviyo",domain:"klaviyo.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/klaviyo",industry:"Marketing SaaS",hq:"Boston, MA"},
-  {name:"Braze",domain:"braze.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/braze",industry:"Marketing Automation",hq:"New York, NY"},
-  {name:"Amplitude",domain:"amplitude.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/amplitude",industry:"Product Analytics",hq:"San Francisco, CA"},
-  {name:"Segment",domain:"segment.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/segment",industry:"Data / CDP",hq:"San Francisco, CA"},
-  {name:"Mixpanel",domain:"mixpanel.com",ats:"Greenhouse",url:"https://boards.greenhouse.io/mixpanel",industry:"Product Analytics",hq:"San Francisco, CA"},
-
-  // LEVER
-  {name:"Notion",domain:"notion.so",ats:"Lever",url:"https://jobs.lever.co/notion",industry:"Productivity / Notes",hq:"San Francisco, CA"},
-  {name:"Figma",domain:"figma.com",ats:"Lever",url:"https://jobs.lever.co/figma",industry:"Design Tools",hq:"San Francisco, CA"},
-  {name:"Linear",domain:"linear.app",ats:"Lever",url:"https://jobs.lever.co/linear",industry:"Project Management",hq:"San Francisco, CA"},
-  {name:"Vercel",domain:"vercel.com",ats:"Lever",url:"https://jobs.lever.co/vercel",industry:"Dev Tools / Cloud",hq:"San Francisco, CA"},
-  {name:"Netlify",domain:"netlify.com",ats:"Lever",url:"https://jobs.lever.co/netlify",industry:"Dev Tools / Cloud",hq:"San Francisco, CA"},
-  {name:"GitHub",domain:"github.com",ats:"Lever",url:"https://jobs.lever.co/github",industry:"Dev Tools",hq:"San Francisco, CA"},
-  {name:"GitLab",domain:"gitlab.com",ats:"Lever",url:"https://jobs.lever.co/gitlab",industry:"DevOps",hq:"Remote"},
-  {name:"Postman",domain:"postman.com",ats:"Lever",url:"https://jobs.lever.co/postman",industry:"API Dev Tools",hq:"San Francisco, CA"},
-  {name:"Retool",domain:"retool.com",ats:"Lever",url:"https://jobs.lever.co/retool",industry:"Low-Code / Dev Tools",hq:"San Francisco, CA"},
-  {name:"Remix",domain:"remix.run",ats:"Lever",url:"https://jobs.lever.co/remix",industry:"Web Framework",hq:"Remote"},
-  {name:"Scale AI",domain:"scale.com",ats:"Lever",url:"https://jobs.lever.co/scaleai",industry:"AI / Data Labeling",hq:"San Francisco, CA"},
-  {name:"Weights & Biases",domain:"wandb.ai",ats:"Lever",url:"https://jobs.lever.co/wandb",industry:"AI / MLOps",hq:"San Francisco, CA"},
-  {name:"Hugging Face",domain:"huggingface.co",ats:"Lever",url:"https://jobs.lever.co/huggingface",industry:"AI / Open Source",hq:"New York, NY"},
-  {name:"Cohere",domain:"cohere.com",ats:"Lever",url:"https://jobs.lever.co/cohere",industry:"AI / LLM",hq:"Toronto, Canada"},
-  {name:"Mistral AI",domain:"mistral.ai",ats:"Lever",url:"https://jobs.lever.co/mistral",industry:"AI / LLM",hq:"Paris, France"},
-  {name:"Replit",domain:"replit.com",ats:"Lever",url:"https://jobs.lever.co/replit",industry:"AI / Dev Tools",hq:"San Francisco, CA"},
-  {name:"Webflow",domain:"webflow.com",ats:"Lever",url:"https://jobs.lever.co/webflow",industry:"No-Code / Web",hq:"San Francisco, CA"},
-  {name:"Productboard",domain:"productboard.com",ats:"Lever",url:"https://jobs.lever.co/productboard",industry:"Product Management SaaS",hq:"San Francisco, CA"},
-  {name:"Carta",domain:"carta.com",ats:"Lever",url:"https://jobs.lever.co/carta",industry:"Equity / Fintech",hq:"San Francisco, CA"},
-  {name:"AngelList",domain:"angel.co",ats:"Lever",url:"https://jobs.lever.co/angellist",industry:"Startup Ecosystem",hq:"San Francisco, CA"},
-  {name:"Lattice",domain:"lattice.com",ats:"Lever",url:"https://jobs.lever.co/lattice",industry:"HR SaaS",hq:"San Francisco, CA"},
-  {name:"Deel",domain:"deel.com",ats:"Lever",url:"https://jobs.lever.co/deel",industry:"HR / Global Payroll",hq:"San Francisco, CA"},
-  {name:"Remote.com",domain:"remote.com",ats:"Lever",url:"https://jobs.lever.co/remote",industry:"HR / Employer of Record",hq:"Remote"},
-  {name:"Oyster HR",domain:"oysterhr.com",ats:"Lever",url:"https://jobs.lever.co/oyster",industry:"HR Tech",hq:"Remote"},
-  {name:"Lempire",domain:"lemlist.com",ats:"Lever",url:"https://jobs.lever.co/lemlist",industry:"Sales Outreach",hq:"Paris, France"},
-  {name:"Pitch",domain:"pitch.com",ats:"Lever",url:"https://jobs.lever.co/pitch",industry:"Presentation SaaS",hq:"Berlin, Germany"},
-
-  // iCIMS
-  {name:"Accenture Federal",domain:"accenturefederal.com",ats:"iCIMS",url:"https://accenturefederal.com/careers",industry:"Consulting / Defense",hq:"Arlington, VA"},
-  {name:"SAIC",domain:"saic.com",ats:"iCIMS",url:"https://careers.saic.com",industry:"Defense / IT",hq:"Reston, VA"},
-  {name:"ManTech",domain:"mantech.com",ats:"iCIMS",url:"https://careers.mantech.com",industry:"Defense / IT",hq:"Herndon, VA"},
-  {name:"Leidos",domain:"leidos.com",ats:"iCIMS",url:"https://careers.leidos.com",industry:"Defense / IT",hq:"Reston, VA"},
-  {name:"CACI",domain:"caci.com",ats:"iCIMS",url:"https://careers.caci.com",industry:"Defense / IT",hq:"Reston, VA"},
-  {name:"Peraton",domain:"peraton.com",ats:"iCIMS",url:"https://careers.peraton.com",industry:"Defense / IT",hq:"Herndon, VA"},
-  {name:"BAE Systems",domain:"baesystems.com",ats:"iCIMS",url:"https://careers.baesystems.com",industry:"Defense",hq:"Falls Church, VA"},
-  {name:"Science Applications",domain:"saic.com",ats:"iCIMS",url:"https://careers.saic.com",industry:"Defense / IT",hq:"Reston, VA"},
-  {name:"Conduent",domain:"conduent.com",ats:"iCIMS",url:"https://jobs.conduent.com",industry:"Business Services / IT",hq:"Florham Park, NJ"},
-  {name:"Unisys",domain:"unisys.com",ats:"iCIMS",url:"https://careers.unisys.com",industry:"IT Services",hq:"Blue Bell, PA"},
-  {name:"Cognizant",domain:"cognizant.com",ats:"iCIMS",url:"https://careers.cognizant.com",industry:"IT Services",hq:"Teaneck, NJ"},
-  {name:"Infosys",domain:"infosys.com",ats:"iCIMS",url:"https://careers.infosys.com",industry:"IT Services",hq:"Bengaluru, India"},
-  {name:"Wipro",domain:"wipro.com",ats:"iCIMS",url:"https://careers.wipro.com",industry:"IT Services",hq:"Bengaluru, India"},
-  {name:"HCL Technologies",domain:"hcltech.com",ats:"iCIMS",url:"https://careers.hcltech.com",industry:"IT Services",hq:"Noida, India"},
-  {name:"Tata Consultancy",domain:"tcs.com",ats:"iCIMS",url:"https://www.tcs.com/careers",industry:"IT Services",hq:"Mumbai, India"},
-
-  // TALEO
-  {name:"Chevron",domain:"chevron.com",ats:"Taleo",url:"https://chevron.com/careers",industry:"Energy / Oil",hq:"San Ramon, CA"},
-  {name:"ExxonMobil",domain:"exxonmobil.com",ats:"Taleo",url:"https://jobs.exxonmobil.com",industry:"Energy / Oil",hq:"Spring, TX"},
-  {name:"ConocoPhillips",domain:"conocophillips.com",ats:"Taleo",url:"https://jobs.conocophillips.com",industry:"Energy",hq:"Houston, TX"},
-  {name:"Shell",domain:"shell.com",ats:"Taleo",url:"https://careers.shell.com",industry:"Energy",hq:"The Hague, Netherlands"},
-  {name:"Schlumberger",domain:"slb.com",ats:"Taleo",url:"https://careers.slb.com",industry:"Energy Services",hq:"Houston, TX"},
-  {name:"Halliburton",domain:"halliburton.com",ats:"Taleo",url:"https://jobs.halliburton.com",industry:"Energy Services",hq:"Houston, TX"},
-  {name:"Caterpillar Financial",domain:"catfinancial.com",ats:"Taleo",url:"https://caterpillar.wd5.myworkdayjobs.com",industry:"Finance",hq:"Nashville, TN"},
-  {name:"Siemens",domain:"siemens.com",ats:"Taleo",url:"https://jobs.siemens.com",industry:"Industrial / Tech",hq:"Munich, Germany"},
-  {name:"ABB",domain:"abb.com",ats:"Taleo",url:"https://careers.abb",industry:"Industrial Tech",hq:"Zurich, Switzerland"},
-  {name:"Emerson Electric",domain:"emerson.com",ats:"Taleo",url:"https://emerson.com/en-us/careers",industry:"Industrial Tech",hq:"Ferguson, MO"},
-  {name:"Parker Hannifin",domain:"parker.com",ats:"Taleo",url:"https://ph.wd5.myworkdayjobs.com",industry:"Industrial / Aerospace",hq:"Cleveland, OH"},
-  {name:"Eaton",domain:"eaton.com",ats:"Taleo",url:"https://eaton.com/us/en-us/company/careers",industry:"Industrial / Energy",hq:"Dublin, Ireland"},
-  {name:"Textron",domain:"textron.com",ats:"Taleo",url:"https://textron.taleo.net",industry:"Aerospace / Defense",hq:"Providence, RI"},
-
-  // OTHER
-  {name:"Google",domain:"google.com",ats:"Other",url:"https://careers.google.com",industry:"Search / Cloud / AI",hq:"Mountain View, CA"},
-  {name:"Meta",domain:"meta.com",ats:"Other",url:"https://www.metacareers.com",industry:"Social / AI / VR",hq:"Menlo Park, CA"},
-  {name:"Twitter / X",domain:"x.com",ats:"Other",url:"https://careers.x.com",industry:"Social Media",hq:"San Francisco, CA"},
-  {name:"LinkedIn",domain:"linkedin.com",ats:"Other",url:"https://careers.linkedin.com",industry:"Professional Network",hq:"Sunnyvale, CA"},
-  {name:"Spotify",domain:"spotify.com",ats:"Other",url:"https://www.lifeatspotify.com",industry:"Music Streaming",hq:"Stockholm, Sweden"},
-  {name:"Slack",domain:"slack.com",ats:"Other",url:"https://slack.com/careers",industry:"Collaboration SaaS",hq:"San Francisco, CA"},
-  {name:"Zoom",domain:"zoom.us",ats:"Other",url:"https://careers.zoom.us",industry:"Video Comms",hq:"San Jose, CA"},
-  {name:"Palantir",domain:"palantir.com",ats:"Other",url:"https://www.palantir.com/careers",industry:"Data / Defense / AI",hq:"Denver, CO"},
-  {name:"Anthropic",domain:"anthropic.com",ats:"Other",url:"https://www.anthropic.com/careers",industry:"AI / Safety",hq:"San Francisco, CA"},
-  {name:"OpenAI",domain:"openai.com",ats:"Other",url:"https://openai.com/careers",industry:"AI / LLM",hq:"San Francisco, CA"},
-  {name:"Tesla",domain:"tesla.com",ats:"Other",url:"https://www.tesla.com/careers",industry:"EV / Energy / AI",hq:"Austin, TX"},
-  {name:"SpaceX",domain:"spacex.com",ats:"Other",url:"https://www.spacex.com/careers",industry:"Aerospace / Defense",hq:"Hawthorne, CA"},
-  {name:"Waymo",domain:"waymo.com",ats:"Other",url:"https://waymo.com/joinus",industry:"Autonomous Vehicles",hq:"Mountain View, CA"},
-  {name:"Rivian",domain:"rivian.com",ats:"Other",url:"https://rivian.com/careers",industry:"EV / Automotive",hq:"Irvine, CA"},
-  {name:"Lucid Motors",domain:"lucidmotors.com",ats:"Other",url:"https://jobs.lucidmotors.com",industry:"EV / Automotive",hq:"Newark, CA"},
-  {name:"Reddit",domain:"reddit.com",ats:"Other",url:"https://www.redditinc.com/careers",industry:"Social Media",hq:"San Francisco, CA"},
-  {name:"Pinterest",domain:"pinterest.com",ats:"Other",url:"https://www.pinterestcareers.com",industry:"Social / E-commerce",hq:"San Francisco, CA"},
-  {name:"Snap",domain:"snap.com",ats:"Other",url:"https://careers.snap.com",industry:"Social / AR",hq:"Santa Monica, CA"},
-  {name:"TikTok",domain:"tiktok.com",ats:"Other",url:"https://careers.tiktok.com",industry:"Social Media / AI",hq:"Los Angeles, CA"},
-  {name:"ByteDance",domain:"bytedance.com",ats:"Other",url:"https://jobs.bytedance.com",industry:"Social Media / AI",hq:"Beijing, China"},
-  {name:"Roblox",domain:"roblox.com",ats:"Other",url:"https://careers.roblox.com",industry:"Gaming / Metaverse",hq:"San Mateo, CA"},
-  {name:"Epic Games",domain:"epicgames.com",ats:"Other",url:"https://www.epicgames.com/site/en-US/careers",industry:"Gaming / Metaverse",hq:"Cary, NC"},
-  {name:"Unity",domain:"unity.com",ats:"Other",url:"https://careers.unity.com",industry:"Game Engine",hq:"San Francisco, CA"},
-  {name:"Activision Blizzard",domain:"activisionblizzard.com",ats:"Other",url:"https://careers.activisionblizzard.com",industry:"Gaming",hq:"Santa Monica, CA"},
-  {name:"Electronic Arts",domain:"ea.com",ats:"Other",url:"https://jobs.ea.com",industry:"Gaming",hq:"Redwood City, CA"},
-  {name:"Twitch",domain:"twitch.tv",ats:"Other",url:"https://www.twitch.tv/jobs",industry:"Streaming / Gaming",hq:"San Francisco, CA"},
-  {name:"Discord",domain:"discord.com",ats:"Other",url:"https://discord.com/jobs",industry:"Community / Gaming",hq:"San Francisco, CA"},
-  {name:"Niantic",domain:"nianticlabs.com",ats:"Other",url:"https://nianticlabs.com/careers",industry:"AR / Gaming",hq:"San Francisco, CA"},
+  {name:"Apple",domain:"apple.com",hq:"Cupertino, CA",url:"https://jobs.apple.com"},
+  {name:"Amazon",domain:"amazon.com",hq:"Seattle, WA",url:"https://amazon.jobs"},
+  {name:"Microsoft",domain:"microsoft.com",hq:"Redmond, WA",url:"https://careers.microsoft.com"},
+  {name:"Adobe",domain:"adobe.com",hq:"San Jose, CA",url:"https://adobe.com"},
+  {name:"Nike",domain:"nike.com",hq:"Beaverton, OR",url:"https://nike.com"}
 ];
 
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-let activeATS = '';
-let activeView = 'companies';
-let trackedApps = JSON.parse(localStorage.getItem('lp_tracked') || '[]');
-let companyNotes = JSON.parse(localStorage.getItem('lp_notes') || '{}');
-let savedCompanies = new Set(JSON.parse(localStorage.getItem('lp_saved') || '[]'));
-let resumes = JSON.parse(localStorage.getItem('lp_resumes') || '[]');
-let selectedCompany = null;
-
-const statusConfig = {
-  saved:     { label:'Saved',       color:'#8b5cf6', dot:'#8b5cf6' },
-  applied:   { label:'Applied',     color:'#3b82f6', dot:'#3b82f6' },
-  interview: { label:'Interview',   color:'#fbbf24', dot:'#fbbf24' },
-  offer:     { label:'Offer',       color:'#10b981', dot:'#10b981' },
-  rejected:  { label:'Rejected',    color:'#ef4444', dot:'#ef4444' },
-};
-
-// ═══════════════════════════════════════
-// LOADER
-// ═══════════════════════════════════════
-const loaderMessages = [
-  'Initializing ATS Navigator...',
-  'Loading 200+ companies...',
-  'Syncing tracker data...',
-  'Preparing launch sequence...',
-  'Ready for liftoff 🚀'
-];
-let msgIdx = 0;
-const msgEl = document.getElementById('loaderText');
-const msgInterval = setInterval(() => {
-  msgIdx++;
-  if (msgIdx < loaderMessages.length) msgEl.textContent = loaderMessages[msgIdx];
-  else clearInterval(msgInterval);
-}, 1200);
-
-setTimeout(() => {
-  document.getElementById('loaderRocket').classList.add('launch');
-}, 4800);
-
-setTimeout(() => {
-  const loader = document.getElementById('loader');
-  loader.style.opacity = '0';
-  loader.style.pointerEvents = 'none';
-  setTimeout(() => loader.remove(), 800);
-  updateStats();
-  renderCompanies();
-  renderTicker();
-  renderKanban();
-  renderJobs();
-  renderNotes();
-  renderResumes();
-}, 5600);
-
-// ═══════════════════════════════════════
-// CURSOR
-// ═══════════════════════════════════════
-const cursor = document.getElementById('cursor');
-const cursorRing = document.getElementById('cursor-ring');
-let cx=0, cy=0, rx=0, ry=0;
-
-document.addEventListener('mousemove', e => {
-  cx = e.clientX; cy = e.clientY;
-  cursor.style.left = cx - 4 + 'px';
-  cursor.style.top = cy - 4 + 'px';
-});
-
-setInterval(() => {
-  rx += (cx - rx) * 0.2;
-  ry += (cy - ry) * 0.2;
-  cursorRing.style.left = rx - 14 + 'px';
-  cursorRing.style.top = ry - 14 + 'px';
-}, 16);
-
-document.addEventListener('mousedown', () => cursor.style.transform = 'scale(2)');
-document.addEventListener('mouseup', () => cursor.style.transform = 'scale(1)');
-
-// ═══════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════
-function switchView(v) {
-  activeView = v;
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.getElementById('nav-' + v).classList.add('active');
-  const titles = {
-    companies: 'Company Directory',
-    tracker: 'Application Tracker',
-    jobs: 'Job Board',
-    notes: 'Company Notes',
-    resume: 'Resume Manager'
-  };
-  document.getElementById('topbar-title').textContent = titles[v];
-  document.getElementById('search').style.display = v === 'companies' ? '' : 'none';
-  document.querySelector('.search-wrap').style.display = v === 'companies' ? '' : 'none';
+// LOGO
+function logo(domain){
+  return `https://logo.clearbit.com/${domain}`;
 }
 
-// ═══════════════════════════════════════
-// ATS FILTER
-// ═══════════════════════════════════════
-function setATS(a) {
-  activeATS = a;
-  document.querySelectorAll('.ats-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent.includes(a === '' ? 'All Systems' : a));
+// GROUP
+function group(data){
+  const map={};
+
+  data.forEach(c=>{
+    const l=c.name[0].toUpperCase();
+    if(!map[l]) map[l]=[];
+    map[l].push(c);
   });
-  renderCompanies();
+
+  return Object.keys(map).sort().map(l=>({
+    letter:l,
+    items:map[l].sort((a,b)=>a.name.localeCompare(b.name))
+  }));
 }
 
-// ═══════════════════════════════════════
-// COMPANY GRID
-// ═══════════════════════════════════════
-function renderCompanies() {
-  const q = document.getElementById('search').value.toLowerCase().trim();
-  const filtered = companies.filter(c => {
-    const matchQ = !q || c.name.toLowerCase().includes(q) || c.industry.toLowerCase().includes(q) || c.hq.toLowerCase().includes(q);
-    const matchATS = !activeATS || c.ats === activeATS;
-    return matchQ && matchATS;
-  });
+// ALPHABET UI
+function renderAlphabet(groups){
+  const el=document.getElementById("alphabet");
+  el.innerHTML=groups.map(g=>`<span onclick="scrollToLetter('${g.letter}')">${g.letter}</span>`).join("");
+}
 
-  // Deduplicate by name
-  const seen = new Set();
-  const unique = filtered.filter(c => {
-    if (seen.has(c.name)) return false;
-    seen.add(c.name); return true;
-  });
+// SCROLL
+function scrollToLetter(letter){
+  document.getElementById("section-"+letter)?.scrollIntoView({behavior:"smooth"});
+}
 
-  document.getElementById('result-count').textContent = unique.length;
-  document.getElementById('badge-companies').textContent = unique.length;
-  const grid = document.getElementById('grid');
-  const empty = document.getElementById('empty-state');
+// MAIN RENDER
+function render(){
+  const q=document.getElementById("search").value.toLowerCase();
 
-  if (!unique.length) {
-    grid.innerHTML = '';
-    empty.style.display = '';
-    return;
-  }
-  empty.style.display = 'none';
+  const filtered=companies.filter(c=>c.name.toLowerCase().includes(q));
 
-  grid.innerHTML = unique.map(c => {
-    const app = trackedApps.find(a => a.company === c.name);
-    const isSaved = savedCompanies.has(c.name);
-    const atsBadgeClass = 'badge-' + c.ats.toLowerCase().replace(/[^a-z]/g,'');
-    const statusBadge = app ? `<span class="badge badge-status badge-${app.status}">${statusConfig[app.status]?.label || app.status}</span>` : '';
-    return `
-      <div class="company-card" onclick="openCompanyModal('${c.name.replace(/'/g,"\\'")}')">
-        <div class="card-top">
-          <img class="card-logo" src="https://logo.clearbit.com/${c.domain}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="card-logo-fallback" style="display:none">${c.name.charAt(0)}</div>
-          <div class="card-info">
-            <div class="card-name">${c.name}</div>
-            <div class="card-ats">${c.ats}</div>
+  const groups=group(filtered);
+
+  renderAlphabet(groups);
+
+  const container=document.getElementById("list");
+  container.innerHTML="";
+
+  groups.forEach(g=>{
+    const section=document.createElement("div");
+
+    section.innerHTML=`
+      <div class="alpha-header" id="section-${g.letter}">${g.letter}</div>
+      ${g.items.map(c=>`
+        <div class="company-row">
+          <img src="${logo(c.domain)}" onerror="this.style.display='none'">
+          <div class="company-meta">
+            <div class="company-name">${c.name}</div>
+            <div class="company-sub">${c.hq}</div>
           </div>
-          <button class="star-btn ${isSaved ? 'starred' : ''}" onclick="event.stopPropagation();toggleSave('${c.name.replace(/'/g,"\\'")}',this)" title="Save">${isSaved ? '★' : '☆'}</button>
-        </div>
-        <div class="card-badges">
-          <span class="badge ${atsBadgeClass}">${c.ats}</span>
-          ${statusBadge}
-        </div>
-        <div class="card-industry">📍 ${c.hq}</div>
-        <div class="card-actions">
-          <button class="card-btn" onclick="event.stopPropagation();openTrackModal('${c.name.replace(/'/g,"\\'")}')">Track</button>
-          <a class="card-btn primary" href="${c.url}" target="_blank" onclick="event.stopPropagation()">Apply ↗</a>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════
-// SAVE / STAR
-// ═══════════════════════════════════════
-function toggleSave(name, btn) {
-  if (savedCompanies.has(name)) { savedCompanies.delete(name); btn.classList.remove('starred'); btn.textContent = '☆'; }
-  else { savedCompanies.add(name); btn.classList.add('starred'); btn.textContent = '★'; }
-  localStorage.setItem('lp_saved', JSON.stringify([...savedCompanies]));
-  updateStats();
-  toast(savedCompanies.has(name) ? '★ Saved ' + name : 'Removed from saved');
-}
-
-// ═══════════════════════════════════════
-// COMPANY MODAL
-// ═══════════════════════════════════════
-function openCompanyModal(name) {
-  const c = companies.find(x => x.name === name);
-  if (!c) return;
-  const app = trackedApps.find(a => a.company === c.name);
-  const note = companyNotes[c.name] || '';
-
-  document.getElementById('modal-content').innerHTML = `
-    <div class="modal-header">
-      <img class="modal-logo" src="https://logo.clearbit.com/${c.domain}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="modal-logo-fb" style="display:none">${c.name.charAt(0)}</div>
-      <div>
-        <div class="modal-title">${c.name}</div>
-        <div class="modal-subtitle">${c.industry} · ${c.hq}</div>
-      </div>
-    </div>
-    <div class="modal-section">
-      <div class="modal-section-title">ATS Platform</div>
-      <span class="badge badge-${c.ats.toLowerCase().replace(/[^a-z]/g,'')}">${c.ats}</span>
-    </div>
-    ${app ? `<div class="modal-section">
-      <div class="modal-section-title">Application Status</div>
-      <span class="badge badge-status badge-${app.status}">${statusConfig[app.status]?.label}</span>
-      ${app.role ? `<div style="font-size:11px;color:var(--text2);margin-top:6px">Role: ${app.role}</div>` : ''}
-      ${app.date ? `<div style="font-size:11px;color:var(--text3)">Applied: ${app.date}</div>` : ''}
-    </div>` : ''}
-    <div class="modal-section">
-      <div class="modal-section-title">Notes</div>
-      <textarea class="modal-field" id="modal-note" rows="3" placeholder="Add research notes, contacts, interview tips..." style="width:100%;resize:vertical">${note}</textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" style="flex:1" onclick="saveModalNote('${name.replace(/'/g,"\\'")}')">Save Note</button>
-      <button class="btn btn-gold" style="flex:1" onclick="closeModal();openTrackModal('${name.replace(/'/g,"\\'")}')">Track App</button>
-      <a class="btn btn-primary" href="${c.url}" target="_blank" style="text-decoration:none;flex:1;text-align:center">Open Careers ↗</a>
-    </div>`;
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function saveModalNote(name) {
-  const val = document.getElementById('modal-note').value;
-  companyNotes[name] = val;
-  localStorage.setItem('lp_notes', JSON.stringify(companyNotes));
-  toast('Note saved for ' + name);
-  renderNotes();
-}
-
-// ═══════════════════════════════════════
-// TRACK MODAL
-// ═══════════════════════════════════════
-function openTrackModal(companyName) {
-  const opts = [...new Set(companies.map(c=>c.name))].sort().map(n => `<option value="${n}" ${n===companyName?'selected':''}>${n}</option>`).join('');
-  document.getElementById('modal-content').innerHTML = `
-    <div class="modal-header" style="margin-bottom:16px">
-      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:#fff">Track Application</div>
-    </div>
-    <div class="modal-section">
-      <div class="modal-section-title">Company</div>
-      <select class="modal-field" id="tm-company" style="width:100%">${opts}</select>
-    </div>
-    <div class="modal-row">
-      <div style="flex:1">
-        <div class="modal-section-title">Role / Title</div>
-        <input class="modal-field" id="tm-role" placeholder="e.g. Software Engineer" style="width:100%">
-      </div>
-    </div>
-    <div class="modal-row">
-      <div style="flex:1">
-        <div class="modal-section-title">Status</div>
-        <select class="modal-field" id="tm-status" style="width:100%">
-          ${Object.entries(statusConfig).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}
-        </select>
-      </div>
-      <div style="flex:1">
-        <div class="modal-section-title">Date</div>
-        <input class="modal-field" id="tm-date" type="date" style="width:100%" value="${new Date().toISOString().split('T')[0]}">
-      </div>
-    </div>
-    <div class="modal-section">
-      <div class="modal-section-title">Notes</div>
-      <textarea class="modal-field" id="tm-notes" rows="2" placeholder="Job link, recruiter name, notes..." style="width:100%;resize:vertical"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" style="flex:1" onclick="saveTrack()">Save Application</button>
-    </div>`;
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function saveTrack() {
-  const company = document.getElementById('tm-company').value;
-  const role = document.getElementById('tm-role').value;
-  const status = document.getElementById('tm-status').value;
-  const date = document.getElementById('tm-date').value;
-  const notes = document.getElementById('tm-notes').value;
-  const idx = trackedApps.findIndex(a => a.company === company);
-  const obj = { company, role, status, date, notes };
-  if (idx >= 0) trackedApps[idx] = obj; else trackedApps.push(obj);
-  localStorage.setItem('lp_tracked', JSON.stringify(trackedApps));
-  closeModal();
-  renderKanban();
-  renderCompanies();
-  updateStats();
-  toast('Saved: ' + company + ' → ' + statusConfig[status]?.label);
-}
-
-// ═══════════════════════════════════════
-// KANBAN
-// ═══════════════════════════════════════
-function renderKanban() {
-  const kanban = document.getElementById('kanban');
-  kanban.innerHTML = Object.entries(statusConfig).map(([key, cfg]) => {
-    const apps = trackedApps.filter(a => a.status === key);
-    return `
-      <div class="kanban-col">
-        <div class="kanban-header" style="color:${cfg.color}">
-          <div class="kanban-dot" style="background:${cfg.dot}"></div>
-          ${cfg.label}
-          <span class="kanban-count">${apps.length}</span>
-        </div>
-        <div class="kanban-body">
-          ${apps.length ? apps.map(a => {
-            const c = companies.find(x=>x.name===a.company);
-            return `
-              <div class="kanban-card" onclick="openTrackModal('${a.company.replace(/'/g,"\\'")}')">
-                <div class="kanban-card-name">${a.company}</div>
-                ${a.role ? `<div class="kanban-card-role">${a.role}</div>` : ''}
-                <div class="kanban-card-meta">
-                  ${c ? `<span>${c.ats}</span>` : ''}
-                  ${a.date ? `<span>·</span><span>${a.date}</span>` : ''}
-                </div>
-              </div>`;
-          }).join('') : `<div style="font-size:10px;color:var(--text3);text-align:center;padding:20px 0">Empty</div>`}
-          <button class="card-btn" style="width:100%;margin-top:4px" onclick="openTrackModal(null)">+ Add</button>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════
-// JOBS
-// ═══════════════════════════════════════
-const jobTypes = ['All','Engineering','Design','Product','Data','Marketing','Finance','Operations'];
-let activeJobType = 'All';
-
-const sampleJobs = [
-  {company:"Stripe",domain:"stripe.com",role:"Senior Software Engineer",type:"Engineering",location:"San Francisco, CA",remote:true,salary:"$180K–$240K",url:"https://boards.greenhouse.io/stripe",ats:"Greenhouse"},
-  {company:"Figma",domain:"figma.com",role:"Product Designer",type:"Design",location:"San Francisco, CA",remote:true,salary:"$150K–$200K",url:"https://jobs.lever.co/figma",ats:"Lever"},
-  {company:"Databricks",domain:"databricks.com",role:"ML Engineer",type:"Engineering",location:"San Francisco, CA",remote:false,salary:"$200K–$300K",url:"https://boards.greenhouse.io/databricks",ats:"Greenhouse"},
-  {company:"Anthropic",domain:"anthropic.com",role:"Research Engineer",type:"Engineering",location:"San Francisco, CA",remote:false,salary:"$200K+",url:"https://www.anthropic.com/careers",ats:"Other"},
-  {company:"Notion",domain:"notion.so",role:"Product Manager",type:"Product",location:"San Francisco, CA",remote:true,salary:"$160K–$210K",url:"https://jobs.lever.co/notion",ats:"Lever"},
-  {company:"Snowflake",domain:"snowflake.com",role:"Data Engineer",type:"Data",location:"San Mateo, CA",remote:true,salary:"$170K–$220K",url:"https://boards.greenhouse.io/snowflake",ats:"Greenhouse"},
-  {company:"HubSpot",domain:"hubspot.com",role:"Growth Marketing Manager",type:"Marketing",location:"Cambridge, MA",remote:true,salary:"$120K–$160K",url:"https://boards.greenhouse.io/hubspot",ats:"Greenhouse"},
-  {company:"Salesforce",domain:"salesforce.com",role:"Sr. UX Designer",type:"Design",location:"San Francisco, CA",remote:true,salary:"$140K–$190K",url:"https://salesforce.wd12.myworkdayjobs.com",ats:"Workday"},
-  {company:"DoorDash",domain:"doordash.com",role:"Operations Manager",type:"Operations",location:"New York, NY",remote:false,salary:"$110K–$150K",url:"https://boards.greenhouse.io/doordash",ats:"Greenhouse"},
-  {company:"CrowdStrike",domain:"crowdstrike.com",role:"Security Engineer",type:"Engineering",location:"Austin, TX",remote:true,salary:"$160K–$220K",url:"https://boards.greenhouse.io/crowdstrike",ats:"Greenhouse"},
-  {company:"Capital One",domain:"capitalone.com",role:"Data Scientist",type:"Data",location:"McLean, VA",remote:false,salary:"$140K–$190K",url:"https://capitalone.wd1.myworkdayjobs.com",ats:"Workday"},
-  {company:"Adobe",domain:"adobe.com",role:"Product Manager, Creative Cloud",type:"Product",location:"San Jose, CA",remote:true,salary:"$155K–$200K",url:"https://adobe.wd5.myworkdayjobs.com",ats:"Workday"},
-  {company:"Cloudflare",domain:"cloudflare.com",role:"Infrastructure Engineer",type:"Engineering",location:"San Francisco, CA",remote:true,salary:"$170K–$230K",url:"https://boards.greenhouse.io/cloudflare",ats:"Greenhouse"},
-  {company:"Duolingo",domain:"duolingo.com",role:"Senior Product Designer",type:"Design",location:"Pittsburgh, PA",remote:true,salary:"$130K–$175K",url:"https://boards.greenhouse.io/duolingo",ats:"Greenhouse"},
-  {company:"Goldman Sachs",domain:"goldmansachs.com",role:"Quantitative Analyst",type:"Finance",location:"New York, NY",remote:false,salary:"$180K–$250K",url:"https://goldmansachs.wd5.myworkdayjobs.com",ats:"Workday"},
-  {company:"Tesla",domain:"tesla.com",role:"Autopilot Software Engineer",type:"Engineering",location:"Palo Alto, CA",remote:false,salary:"$160K–$240K",url:"https://www.tesla.com/careers",ats:"Other"},
-  {company:"Scale AI",domain:"scale.com",role:"ML Data Ops Manager",type:"Operations",location:"San Francisco, CA",remote:true,salary:"$130K–$180K",url:"https://jobs.lever.co/scaleai",ats:"Lever"},
-  {company:"Rippling",domain:"rippling.com",role:"Full Stack Engineer",type:"Engineering",location:"San Francisco, CA",remote:false,salary:"$180K–$260K",url:"https://boards.greenhouse.io/rippling",ats:"Greenhouse"},
-];
-
-function renderJobs() {
-  const filters = document.getElementById('jobs-filters');
-  filters.innerHTML = jobTypes.map(t =>
-    `<button class="job-filter-btn ${t===activeJobType?'active':''}" onclick="filterJobs('${t}')">${t}</button>`
-  ).join('');
-
-  const list = document.getElementById('jobs-list');
-  const filtered = activeJobType === 'All' ? sampleJobs : sampleJobs.filter(j => j.type === activeJobType);
-  list.innerHTML = filtered.map(j => `
-    <div class="job-card">
-      <img class="job-logo" src="https://logo.clearbit.com/${j.domain}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <div class="job-logo-fallback" style="display:none">${j.company.charAt(0)}</div>
-      <div class="job-body">
-        <div class="job-role">${j.role}</div>
-        <div class="job-company">${j.company}</div>
-        <div class="job-meta">
-          <span>📍 ${j.location}</span>
-          <span>· ${j.type}</span>
-          <span>· ${j.ats}</span>
-        </div>
-      </div>
-      <div class="job-right">
-        <div class="job-salary">${j.salary}</div>
-        ${j.remote ? '<div class="job-remote">Remote OK</div>' : ''}
-        <a class="card-btn primary" href="${j.url}" target="_blank" style="text-decoration:none">Apply ↗</a>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterJobs(type) {
-  activeJobType = type;
-  renderJobs();
-}
-
-// ═══════════════════════════════════════
-// NOTES
-// ═══════════════════════════════════════
-const commonTags = ['Remote','Top Choice','Benefits','Recruiter Contact','Follow Up','Technical Interview','Culture Fit','Referral'];
-
-function renderNotes() {
-  const notedCompanies = [...new Set([
-    ...Object.keys(companyNotes).filter(k => companyNotes[k]),
-    ...trackedApps.map(a => a.company)
-  ])].slice(0, 20);
-
-  const grid = document.getElementById('notes-grid');
-  if (!notedCompanies.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">📝</div><h3>No notes yet</h3><p>Click a company card and add notes to see them here</p></div>`;
-    return;
-  }
-
-  grid.innerHTML = notedCompanies.map(name => {
-    const c = companies.find(x=>x.name===name);
-    if (!c) return '';
-    const note = companyNotes[name] || '';
-    const app = trackedApps.find(a=>a.company===name);
-    const tags = (localStorage.getItem('lp_tags_'+name) || '').split(',').filter(Boolean);
-    return `
-      <div class="note-card">
-        <div class="note-card-header">
-          <img class="note-logo" src="https://logo.clearbit.com/${c.domain}" onerror="this.style.display='none'">
-          <div>
-            <div class="note-company">${name}</div>
-            ${app ? `<span class="badge badge-status badge-${app.status}" style="font-size:8px">${statusConfig[app.status]?.label}</span>` : ''}
+          <div class="company-actions">
+            <button onclick="window.open('${c.url}')">Apply</button>
+            <button class="primary">Track</button>
           </div>
         </div>
-        <div class="note-tags" id="tags-${name.replace(/\s/g,'_')}">
-          ${tags.map(t=>`<span class="tag" onclick="removeTag('${name}','${t}')">${t} ×</span>`).join('')}
-          <span class="tag" style="border-style:dashed;cursor:pointer" onclick="addTag('${name}')">+ tag</span>
-        </div>
-        <textarea class="note-text" rows="3" placeholder="Notes about ${name}..." onblur="saveNoteInline('${name.replace(/'/g,"\\'")}',this.value)">${note}</textarea>
-      </div>`;
-  }).join('');
-}
+      `).join("")}
+    `;
 
-function saveNoteInline(name, val) {
-  companyNotes[name] = val;
-  localStorage.setItem('lp_notes', JSON.stringify(companyNotes));
-}
-
-function addTag(name) {
-  const tag = prompt('Add tag:');
-  if (!tag) return;
-  const key = 'lp_tags_' + name;
-  const tags = (localStorage.getItem(key) || '').split(',').filter(Boolean);
-  if (!tags.includes(tag)) tags.push(tag);
-  localStorage.setItem(key, tags.join(','));
-  renderNotes();
-}
-
-function removeTag(name, tag) {
-  const key = 'lp_tags_' + name;
-  const tags = (localStorage.getItem(key) || '').split(',').filter(t => t !== tag);
-  localStorage.setItem(key, tags.join(','));
-  renderNotes();
-}
-
-// ═══════════════════════════════════════
-// RESUME
-// ═══════════════════════════════════════
-function handleFileUpload(input) {
-  Array.from(input.files).forEach(file => {
-    const r = { name: file.name, size: (file.size/1024).toFixed(0) + ' KB', date: new Date().toLocaleDateString(), id: Date.now() + Math.random() };
-    resumes.push(r);
+    container.appendChild(section);
   });
-  localStorage.setItem('lp_resumes', JSON.stringify(resumes));
-  renderResumes();
-  toast(`Uploaded ${input.files.length} file(s)`);
 }
 
-function renderResumes() {
-  const list = document.getElementById('resume-list');
-  if (!resumes.length) { list.innerHTML = ''; return; }
-  list.innerHTML = resumes.map(r => `
-    <div class="resume-item">
-      <div class="resume-icon">📄</div>
-      <div style="flex:1;min-width:0">
-        <div class="resume-name">${r.name}</div>
-        <div class="resume-meta">${r.size} · Uploaded ${r.date}</div>
-        <div class="progress-bar-wrap" style="margin-top:6px">
-          <div class="progress-bar" style="width:${Math.random()*40+60|0}%"></div>
-        </div>
-      </div>
-      <div class="resume-actions">
-        <button class="card-btn" onclick="deleteResume(${r.id})">Delete</button>
-        <button class="card-btn primary">Use ↗</button>
-      </div>
-    </div>
-  `).join('');
-}
+render();
 
-function deleteResume(id) {
-  resumes = resumes.filter(r => r.id !== id);
-  localStorage.setItem('lp_resumes', JSON.stringify(resumes));
-  renderResumes();
-  toast('Resume removed');
-}
-
-// Drag & drop
-const zone = document.getElementById('resume-zone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  zone.classList.remove('drag-over');
-  const fakeInput = { files: e.dataTransfer.files };
-  handleFileUpload(fakeInput);
-});
-
-// ═══════════════════════════════════════
-// TICKER
-// ═══════════════════════════════════════
-function renderTicker() {
-  const track = document.getElementById('tickerTrack');
-  const items = [...companies, ...companies].slice(0, 100);
-  track.innerHTML = items.map(c => `
-    <span class="ticker-item" onclick="window.open('${c.url}','_blank')">
-      <img src="https://logo.clearbit.com/${c.domain}" onerror="this.style.display='none'">
-      ${c.name}
-    </span>
-    <span class="ticker-sep">·</span>
-  `).join('');
-}
-
-// ═══════════════════════════════════════
-// STATS
-// ═══════════════════════════════════════
-function updateStats() {
-  const uniq = [...new Set(companies.map(c=>c.name))];
-  document.getElementById('stat-total').textContent = uniq.length;
-  document.getElementById('stat-applied').textContent = trackedApps.filter(a=>a.status==='applied').length;
-  document.getElementById('stat-interviews').textContent = trackedApps.filter(a=>a.status==='interview').length;
-  document.getElementById('stat-saved').textContent = savedCompanies.size;
-}
-
-// ═══════════════════════════════════════
-// MODAL
-// ═══════════════════════════════════════
-function closeModal(e) {
-  if (e && e.target !== document.getElementById('modal-overlay')) return;
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-
-function openJobSite() {
-  const grid = document.getElementById('grid');
-  const first = grid.querySelector('a.card-btn.primary');
-  if (first) first.click();
-  else toast('Search for a company first');
-}
-
-// ═══════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
-}
 </script>
+
 </body>
 </html>
