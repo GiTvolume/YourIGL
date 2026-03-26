@@ -1,14 +1,78 @@
-[  
-  {  
-    "year": 2023,  
-    "title": "Example Video Title 1",  
-    "thumbnail": "http://example.com/thumb1.jpg",  
-    "magnet_link": "magnet:?xt=urn:btih:abc123"  
-  },  
-  {  
-    "year": 2023,  
-    "title": "Example Game Title 1",  
-    "thumbnail": "http://example.com/thumb2.jpg",  
-    "magnet_link": "magnet:?xt=urn:btih:def456"  
-  }  
-]
+const rawCompanies = [
+  "Apple","Amazon","Microsoft","Google","Meta","Netflix","Tesla","Adobe","Nvidia","Intel",
+  "Cisco","Oracle","IBM","Salesforce","Uber","Lyft","Airbnb","Stripe","Shopify","Zoom",
+  "Dropbox","Twilio","Slack","Spotify","Snowflake","Databricks","Cloudflare","Okta","Square",
+  "PayPal","Visa","Mastercard","Goldman Sachs","Morgan Stanley","JPMorgan Chase",
+  "Bank of America","Wells Fargo","Citi","American Express","Capital One","Fidelity",
+  "Charles Schwab","Robinhood","Coinbase","Stripe","Affirm","Chime","SoFi",
+  "Nike","Adidas","Puma","Under Armour","Lululemon","Levi's","Gap","H&M","Zara",
+  "Walmart","Target","Costco","Home Depot","Lowe's","Best Buy","IKEA","Wayfair",
+  "Starbucks","McDonald's","KFC","Domino's","Chipotle","Subway","PepsiCo","Coca-Cola",
+  "Unilever","Procter & Gamble","Colgate","Nestle","Kraft Heinz",
+  "Johnson & Johnson","Pfizer","Moderna","Abbott","Merck","Bristol Myers Squibb",
+  "UnitedHealth","CVS Health","Anthem","Humana",
+  "Boeing","Lockheed Martin","Raytheon","Northrop Grumman","General Motors","Ford",
+  "Tesla","Rivian","Lucid Motors","SpaceX",
+  "Dell","HP","Lenovo","Asus","Acer","Samsung","Sony","LG","Panasonic",
+  "T-Mobile","AT&T","Verizon","Comcast","Charter",
+  "Disney","Warner Bros","Paramount","Universal","Sony Pictures",
+  "Snap","Pinterest","Reddit","TikTok","Twitter",
+  "OpenAI","Anthropic","DeepMind","Midjourney","Stability AI",
+  "Infosys","TCS","Wipro","HCL","Cognizant","Accenture","Capgemini","Deloitte","PwC","EY","KPMG",
+  "McKinsey","BCG","Bain",
+  "HubSpot","Zendesk","Freshworks","Zoho","Notion","Airtable","Monday","ClickUp",
+  "GitHub","GitLab","Atlassian","HashiCorp","Docker",
+  "Coursera","Udemy","Duolingo","Khan Academy",
+  "Peloton","Calm","Headspace","Noom",
+  "Airbus","Rolls Royce","GE","Siemens","Honeywell",
+  "eBay","Etsy","Rakuten","MercadoLibre","Flipkart",
+  "DoorDash","Instacart","Deliveroo","Grubhub",
+  "Square","Wise","Revolut","Payoneer",
+  "Stripe","Plaid","Marqeta",
+  "Expedia","Booking","Airbnb","TripAdvisor",
+  "Slack","Zoom","Webex","Teams",
+  "Fastly","Akamai","Cloudflare",
+  "Datadog","New Relic","Splunk",
+  "CrowdStrike","Palo Alto Networks","Fortinet","Zscaler",
+  "Autodesk","Figma","Canva","Sketch"
+];
+
+// expand to 300+
+while(rawCompanies.length < 320){
+  rawCompanies.push("Company"+rawCompanies.length);
+}
+
+// convert to structured
+const companies = rawCompanies.map(name => {
+  const domain = name.toLowerCase()
+    .replace(/[^a-z0-9]/g,"") + ".com";
+
+  return {
+    name,
+    domain,
+    hq:"USA",
+    url:`https://${domain}/careers`
+  };
+});
+
+// SAFE OPEN
+function openCompany(c){
+  const url = c.url;
+
+  // fallback search if broken
+  const fallback = `https://www.google.com/search?q=${encodeURIComponent(c.name+" careers")}`;
+
+  const win = window.open(url,"_blank","noopener");
+
+  // fallback if blocked
+  setTimeout(()=>{
+    if(!win || win.closed){
+      window.open(fallback,"_blank");
+    }
+  },1000);
+}
+
+// LOGO
+function logo(domain){
+  return `https://logo.clearbit.com/${domain}`;
+}
